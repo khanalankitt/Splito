@@ -38,7 +38,7 @@ export default function Form() {
     <ScrollView>
       <View style={styles.form}>
         <Text style={styles.formTitle}>Add payment details</Text>
-        <Text className="text-2xl font-bold bg-red-500">Who paid?</Text>  
+        <Text className="font-bold text-xl w-[90%]">Who paid?</Text>
         <Dropdown
           style={styles.dropdownn}
           data={data}
