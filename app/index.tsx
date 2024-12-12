@@ -1,8 +1,8 @@
 import { StatusBar, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Nav from "./components/nav";
-import List from "./components/list";
-import BottomBar from "./components/bottomBar";
+import Nav from "@/components/nav";
+import List from "@/components/list";
+import BottomBar from "@/components/bottomBar";
 
 export default function HomeScreen() {
   return (

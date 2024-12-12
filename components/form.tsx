@@ -10,35 +10,7 @@ import {
 } from "react-native";
 import React, { useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-// import data from "./data";
-const data = [
-  {
-    name: "Ankit Khanal",
-    amount: 200,
-    clear: false,
-  },
-
-  {
-    name: "Hridayadev Dhungana",
-    amount: 200,
-    clear: false,
-  },
-  {
-    name: "Sujan Puri",
-    amount: 200,
-    clear: false,
-  },
-  {
-    name: "Nishan Gautam",
-    amount: 200,
-    clear: true,
-  },
-  {
-    name: "Rohan Adhikari",
-    amount: 200,
-    clear: true,
-  },
-];
+import data from "./data";
 
 export default function Form() {
   const [selected, setSelected] = useState<string[]>([]);
@@ -63,45 +35,47 @@ export default function Form() {
   };
 
   return (
-    <View style={styles.form}>
-      <Text style={styles.formTitle}>Add payment details</Text>
-      <Text style={styles.whopaid}>Who paid?</Text>
-      <Dropdown
-        style={styles.dropdownn}
-        data={data}
-        onChange={() => {}}
-        placeholder="Select Person"
-        labelField="name"
-        valueField="name"
-      />
-      <Text style={styles.whopaid}>Amount</Text>
-      <TextInput style={styles.amountInput} keyboardType="numeric" />
-      <Text style={styles.whopaid}>Divide amongst?</Text>
-      <MultiSelect
-        style={styles.dropdown}
-        data={data}
-        labelField="name"
-        valueField="name"
-        placeholder="Select people to divide"
-        value={selected}
-        onChange={(data) => setSelected(data)}
-        renderItem={renderItem}
-        renderSelectedItem={(item, unSelect) => (
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => unSelect && unSelect(item)}
-          >
-            <View style={styles.selectedStyle}>
-              <Text style={styles.textSelectedStyle}>
-                {item.name.split(" ")[0]}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        )}
-      />
-      <Text style={styles.whopaid}>Remark</Text>
-      <TextInput style={styles.amountInput} placeholder="Note" />
-    </View>
+    <ScrollView>
+      <View style={styles.form}>
+        <Text style={styles.formTitle}>Add payment details</Text>
+        <Text className="text-2xl font-bold bg-red-500">Who paid?</Text>  
+        <Dropdown
+          style={styles.dropdownn}
+          data={data}
+          onChange={() => {}}
+          placeholder="Select Person"
+          labelField="name"
+          valueField="name"
+        />
+        <Text style={styles.whopaid}>Amount</Text>
+        <TextInput style={styles.amountInput} keyboardType="numeric" />
+        <Text style={styles.whopaid}>Divide amongst?</Text>
+        <MultiSelect
+          style={styles.dropdown}
+          data={data}
+          labelField="name"
+          valueField="name"
+          placeholder="Select people to divide"
+          value={selected}
+          onChange={(data) => setSelected(data)}
+          renderItem={renderItem}
+          renderSelectedItem={(item, unSelect) => (
+            <TouchableOpacity
+              activeOpacity={0.7}
+              onPress={() => unSelect && unSelect(item)}
+            >
+              <View style={styles.selectedStyle}>
+                <Text style={styles.textSelectedStyle}>
+                  {item.name.split(" ")[0]}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+        <Text style={styles.whopaid}>Remark</Text>
+        <TextInput style={styles.amountInput} placeholder="Note" />
+      </View>
+    </ScrollView>
   );
 }
 
@@ -110,8 +84,9 @@ const styles = StyleSheet.create({
     gap: 10,
     marginVertical: 10,
     marginHorizontal: "auto",
-    height: 600,
+    height: "auto",
     padding: 10,
+    paddingVertical: 20,
     borderRadius: 20,
     width: "90%",
     backgroundColor: "#e8e9ed",
@@ -121,7 +96,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   formTitle: {
-    marginTop: 10,
     textAlign: "center",
     fontSize: 22,
     marginHorizontal: "auto",
