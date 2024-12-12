@@ -6,7 +6,7 @@ export default function List() {
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
-      <Text className="text-3xl mt-2 font-bold ">Users</Text>
+      <Text className="text-4xl mt-2 font-bold text-primaryColor">Users</Text>
       <FlatList
         scrollEnabled
         data={data}
@@ -53,7 +53,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     backgroundColor: "#e8e9ed",
     borderColor: "#dddfe5",
-    borderWidth: 2,
+    borderWidth: 1,
+    elevation: 1,
   },
   status: {
     fontSize: 13,
