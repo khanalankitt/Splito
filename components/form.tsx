@@ -1,6 +1,7 @@
 import {
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,7 +14,18 @@ import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import data from "./data";
 
 export default function Form() {
+  const [whoPaid, setWhoPaid] = useState<string>();
+  const [amount, setAmount] = useState<string>();
   const [selected, setSelected] = useState<string[]>([]);
+  const [remark, setRemark] = useState<string>();
+
+  const handleSubmit = () => {
+    alert(
+      `Who Paid: ${whoPaid}\nAmount: ${amount}\nSelected: ${selected.join(
+        ", "
+      )}\nRemark: ${remark}`
+    );
+  };
 
   const renderItem = (item: any) => {
     const isSelected = selected.includes(item.name);
@@ -36,19 +48,25 @@ export default function Form() {
 
   return (
     <ScrollView>
-      <View style={styles.form}>
+      <View style={styles.form} className="bg-[#efeff3] border-[#b2afaf]">
         <Text style={styles.formTitle}>Add payment details</Text>
         <Text className="font-bold text-xl w-[90%]">Who paid?</Text>
         <Dropdown
           style={styles.dropdownn}
           data={data}
-          onChange={() => {}}
+          onChange={(item) => setWhoPaid(item.name)}
           placeholder="Select Person"
           labelField="name"
           valueField="name"
+          value={whoPaid}
         />
         <Text style={styles.whopaid}>Amount</Text>
-        <TextInput style={styles.amountInput} keyboardType="numeric" />
+        <TextInput
+          style={styles.amountInput}
+          keyboardType="numeric"
+          value={amount}
+          onChangeText={(am) => setAmount(am)}
+        />
         <Text style={styles.whopaid}>Divide amongst?</Text>
         <MultiSelect
           style={styles.dropdown}
@@ -73,7 +91,17 @@ export default function Form() {
           )}
         />
         <Text style={styles.whopaid}>Remark</Text>
-        <TextInput style={styles.amountInput} placeholder="Note" />
+        <TextInput
+          style={styles.amountInput}
+          placeholder="Note"
+          value={remark}
+          onChangeText={(text) => setRemark(text)}
+        />
+        <Pressable onPress={handleSubmit}>
+          <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
+            Submit
+          </Text>
+        </Pressable>
       </View>
     </ScrollView>
   );
@@ -89,9 +117,7 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 20,
     width: "90%",
-    backgroundColor: "#e8e9ed",
     borderWidth: 2,
-    borderColor: "#dddfe5",
     justifyContent: "flex-start",
     alignItems: "center",
   },

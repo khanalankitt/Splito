@@ -10,7 +10,7 @@ export default function HomeScreen() {
       <StatusBar backgroundColor="white" barStyle="dark-content" />
       <Nav />
       <List />
-      <BottomBar />
+      {/* <BottomBar /> */}
     </SafeAreaView>
   );
 }
@@ -19,23 +19,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f6f6e9",
-  },
-  text: {
-    color: "#02012e",
-    fontSize: 30,
-    fontWeight: "bold",
-    paddingLeft: 10,
-  },
-  button: {
-    height: 40,
-    width: 100,
-    borderRadius: 10,
-    backgroundColor: "#697596",
-  },
-  nav: {
-    backgroundColor: "red",
-    height: 60,
-    flexDirection: "row",
-    justifyContent: "space-between",
   },
 });

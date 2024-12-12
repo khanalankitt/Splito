@@ -25,6 +25,17 @@ const data = [
     amount: 200,
     clear: true,
   },
+  {
+    name: "Ankit Khanal",
+    amount: 200,
+    clear: false,
+  },
+
+  {
+    name: "Hridayadev Dhungana",
+    amount: 200,
+    clear: false,
+  },
 ];
 
 export default data;

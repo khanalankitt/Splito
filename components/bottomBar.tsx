@@ -1,10 +1,21 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 
-export default function BottomBar() {
+interface BottomBarProps {
+  modalVisible: boolean;
+  setModalVisible: (visible: boolean) => void;
+}
+
+export default function BottomBar({
+  modalVisible,
+  setModalVisible,
+}: BottomBarProps) {
+  const handleModalChange = () => {
+    setModalVisible(!modalVisible);
+  };
   return (
     <View style={styles.bottomBar}>
-      <Pressable style={styles.pressable}>
+      <Pressable style={styles.pressable} onPress={handleModalChange}>
         <Text style={styles.add}>+</Text>
       </Pressable>
     </View>
@@ -22,13 +33,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   pressable: {
-    height: 60,
-    width: 60,
-    borderRadius: 30,
+    height: 70,
+    width: 70,
+    borderRadius: 35,
     backgroundColor: "#547bd4",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 15,
+    marginBottom: 30,
   },
   add: {
     color: "white",
@@ -37,3 +48,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 });
+function setModalVisible(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}

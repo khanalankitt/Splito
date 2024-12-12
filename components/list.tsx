@@ -1,40 +1,16 @@
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 import React from "react";
+import data from "./data";
 
 export default function List() {
-  const data = [
-    {
-      name: "Ankit Khanal",
-      amount: 200,
-      clear: false,
-    },
-    {
-      name: "Nishan Gautam",
-      amount: 200,
-      clear: true,
-    },
-    {
-      name: "Hridayadev Dhunagana",
-      amount: 200,
-      clear: false,
-    },
-    {
-      name: "Sujan Puri",
-      amount: 200,
-      clear: false,
-    },
-    {
-      name: "Rohan Adhikari",
-      amount: 200,
-      clear: true,
-    },
-  ];
-
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   return (
-    <View style={[styles.listContainer]}>
+    <View style={[styles.listContainer, { flex: 0 }]}>
+      <Text className="text-3xl mt-2 font-bold ">Users</Text>
       <FlatList
+        scrollEnabled
         data={data}
+        className="mt-5 h-[70%]"
         renderItem={({ item }) => (
           <MoneyItem name={item.name} clear={item.clear} />
         )}
@@ -86,7 +62,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "white",
     fontWeight: "bold",
-    borderRadius: 10
+    borderRadius: 10,
   },
   clear: {
     backgroundColor: "#55ae51",

@@ -1,6 +1,15 @@
-import { Pressable, StyleSheet, Text, View, Modal, Button, StatusBar } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Modal,
+  Button,
+  StatusBar,
+} from "react-native";
 import React, { useState } from "react";
 import Form from "./form";
+import BottomBar from "./bottomBar";
 
 export default function Nav() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -8,40 +17,51 @@ export default function Nav() {
     setModalVisible(!modalVisible);
   };
   return (
-    <View style={styles.nav}>
-      <StatusBar backgroundColor="white" barStyle="dark-content" />
-
-      <Text style={styles.text}>Splito</Text>
-      <Pressable style={styles.button} onPress={handleModal}>
-        <Text style={styles.buttonText}>Add Payment</Text>
-      </Pressable>
-      <Modal
-        visible={modalVisible}
-        animationType="slide" //or fade
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <View style={styles.pressableContainer}>
-          <Pressable onPress={handleModal}>
-            <Text style={styles.closeButton}>X</Text>
-          </Pressable>
-        </View>
-        <Form/>
-      </Modal>
-    </View>
+    <>
+      <View style={styles.nav}>
+        <StatusBar backgroundColor="#547bd4" barStyle="default" />
+        <Text style={styles.text} className="text-center">
+          Splito
+        </Text>
+        <Modal
+          visible={modalVisible}
+          animationType="slide" //or fade
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.pressableContainer}>
+            <Pressable onPress={handleModal}>
+              <Text className="text-5xl text-white font-bold text-left">
+                {" ←"}
+              </Text>
+            </Pressable>
+          </View>
+          <Form />
+        </Modal>
+      </View>
+      <View className="h-16 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">
+        <Text className="text-lg font-semibold text-white">
+          Split the bills like nobody does{" "}
+        </Text>
+      </View>
+      <BottomBar
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+      />
+    </>
   );
 }
 
 const styles = StyleSheet.create({
   text: {
-    fontSize: 30,
+    fontSize: 40,
     fontWeight: "bold",
     paddingLeft: 10,
     color: "white",
   },
   button: {
-    height: 40,
+    height: 35,
     width: "auto",
-    borderRadius: 10,
+    borderRadius: 8,
     backgroundColor: "white",
     paddingHorizontal: 10,
     justifyContent: "center",
@@ -51,7 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#547bd4",
     height: 60,
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 10,
   },
@@ -64,17 +84,8 @@ const styles = StyleSheet.create({
   pressableContainer: {
     height: 60,
     backgroundColor: "#547bd4",
-    alignItems: "flex-end",
+    alignItems: "flex-start",
     justifyContent: "center",
     paddingHorizontal: 5,
-  },
-  closeButton: {
-    color: "#547bd4",
-    marginRight: 15,
-    padding: 5,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    backgroundColor: "white",
-    fontWeight: "800",
   },
 });
