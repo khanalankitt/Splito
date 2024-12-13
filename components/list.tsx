@@ -37,20 +37,21 @@ export default function List() {
           <Link
             href={{
               pathname: "/user/[user]",
-              params: { user: item.name },
+              params: { userName: item.name },
             }}
             asChild
           >
-            <View>
+            {/* <Link href={`/user/${item.name}`} asChild> */}
+            <Pressable>
               <MoneyItem name={item.name} clear={item.clear} />
-            </View>
+            </Pressable>
           </Link>
         )}
         ItemSeparatorComponent={SeperatorComponent}
       />
       <Modal
         visible={modalVisible}
-        animationType="slide" 
+        animationType="slide"
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.pressableContainer}>

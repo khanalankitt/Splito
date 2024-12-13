@@ -35,13 +35,12 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="+not-found" />
+        <Stack.Screen name="index" />
         <Stack.Screen
-          name="index"
-          // options={{
-          //   headerShown: true,
-          //   headerTitle: "ankit",
-            // headerTitleStyle: { fontFamily: "SpaceMono" },
-          // }}
+          name="user"
+          options={{
+            headerShown: true,
+          }}
         />
       </Stack>
       <StatusBar style="dark" />
