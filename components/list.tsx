@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#e8e9ed",
     borderColor: "#dddfe5",
     borderWidth: 1,
-    elevation: 1,
   },
   status: {
     fontSize: 13,
