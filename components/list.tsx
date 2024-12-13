@@ -41,7 +41,6 @@ export default function List() {
             }}
             asChild
           >
-            {/* <Link href={`/user/${item.name}`} asChild> */}
             <Pressable>
               <MoneyItem name={item.name} clear={item.clear} />
             </Pressable>

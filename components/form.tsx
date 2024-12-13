@@ -61,7 +61,7 @@ export default function Form() {
           style={styles.formTitle}
           className="text-primaryColor font-bold text-4xl w-full "
         >
-          Add payment details
+          Add Payment Details
         </Text>
         <Text className="font-bold text-xl w-[90%]">Who paid?</Text>
         <Dropdown
