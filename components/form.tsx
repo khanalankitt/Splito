@@ -7,19 +7,32 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import { postUserData } from "@/app/api/route";
+import React, { useEffect, useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import data from "./data";
+import { getUsers } from "@/app/api/route";
 
 export default function Form() {
   const [whoPaid, setWhoPaid] = useState<string>();
   const [amount, setAmount] = useState<string>();
   const [selected, setSelected] = useState<string[]>([]);
   const [remark, setRemark] = useState<string>();
+  const [users, setUsers] = useState<{ name: any }[]>([]);
 
-  const handleSubmit = () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await getUsers();
+      const usersArray = Object.keys(res || {}).map((key) => ({
+        name: res[key], // Use the value as the name
+      }));
+      setUsers(usersArray);
+    };
+    fetchUsers();
+  }, []);
 
-    if (whoPaid == "" || amount == "" || selected[0] == '' || remark == "") {
+  const handleSubmit = async () => {
+    if (whoPaid == "" || amount == "" || selected[0] == "" || remark == "") {
       alert("All fields are compulsary!");
       return;
     } else {
@@ -29,6 +42,24 @@ export default function Form() {
         )}\nRemark: ${remark}`
       );
     }
+
+    const transactionTimeStamp = new Date().toLocaleString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    await postUserData("IndivdualTransactions", {
+      whoPaid: whoPaid,
+      amount: amount,
+      selected: selected,
+      remark: remark,
+      transactionTimeStamp: transactionTimeStamp,
+    });
+
     setWhoPaid("");
     setAmount("");
     setSelected([]);
@@ -66,7 +97,7 @@ export default function Form() {
         <Text className="font-bold text-xl w-[90%]">Who paid?</Text>
         <Dropdown
           style={styles.dropdownn}
-          data={data}
+          data={users}
           onChange={(item) => setWhoPaid(item.name)}
           placeholder="Select Person"
           labelField="name"
@@ -84,7 +115,7 @@ export default function Form() {
         <Text style={styles.whopaid}>Divide amongst?</Text>
         <MultiSelect
           style={styles.dropdown}
-          data={data}
+          data={users}
           labelField="name"
           valueField="name"
           placeholder="Select people to divide"

@@ -7,19 +7,56 @@ import {
   TextInput,
   View,
 } from "react-native";
-import React, { useState } from "react";
-import data from "./data";
+import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
+import { postUsers, getUsers } from "@/app/api/route";
 
 export default function List() {
   const [newUser, setNewUser] = useState<string>();
+  interface User {
+    name: string;
+  }
+  const [users, setUsers] = useState<User[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [trigger, setTrigger] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
-  const [modalVisible, setModalVisible] = useState(false);
+  const ListEmptyComponent = () => (
+    <Text style={{ marginTop: 100 }} className="text-center text-xl">
+      Add users to start
+    </Text>
+  );
+
   const handleModal = () => {
     setModalVisible(!modalVisible);
   };
-  const handleAddNewUser = () => {};
+
+  const handleAddNewUser = async () => {
+    if (newUser == "") {
+      alert("User Name cannot be empty!");
+      return;
+    }
+    setLoading(true);
+    await postUsers("Users", newUser);
+    setNewUser("");
+    setTrigger(!trigger);
+    setLoading(false);
+    setModalVisible(!modalVisible);
+  };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await getUsers();
+      const usersArray = Object.keys(res || {}).map((key) => ({
+        id: key, // Use the key as a unique ID
+        name: res[key], // Use the value as the name
+      }));
+      setUsers(usersArray);
+    };
+    fetchUsers();
+  }, [trigger]);
+
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
       <View className=" h-auto flex flex-row justify-between w-[100%] ">
@@ -35,8 +72,9 @@ export default function List() {
       </View>
       <FlatList
         scrollEnabled
-        data={data}
+        data={users}
         className="mt-5 h-[70%]"
+        ListEmptyComponent={<ListEmptyComponent />}
         renderItem={({ item }) => (
           <Link
             href={{
@@ -46,7 +84,7 @@ export default function List() {
             asChild
           >
             <Pressable>
-              <MoneyItem name={item.name} clear={item.clear} />
+              <MoneyItem name={item.name} />
             </Pressable>
           </Link>
         )}
@@ -79,7 +117,9 @@ export default function List() {
             className="bg-primaryColor rounded-lg "
             onPress={handleAddNewUser}
           >
-            <Text className="text-2xl text-white font-bold">Add</Text>
+            <Text className="text-2xl text-white font-bold">
+              {loading ? <Text>loading...</Text> : <Text>Add</Text>}
+            </Text>
           </Pressable>
         </View>
       </Modal>
@@ -88,17 +128,17 @@ export default function List() {
 }
 interface dataTypes {
   name: string;
-  clear: Boolean;
 }
-const MoneyItem = ({ name, clear }: dataTypes) => {
+const MoneyItem = ({ name }: dataTypes) => {
   return (
     <View style={styles.details}>
-      <Text style={{ fontSize: 20, fontWeight: "bold" }}>{name}</Text>
-      {clear ? (
-        <Text className="text-green-600 font-semibold text-lg">Clear</Text>
-      ) : (
-        <Text className="text-red-500 font-semibold text-lg">Not Clear</Text>
-      )}
+      <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+      <Text
+        style={{ opacity: 0.5, textDecorationLine: "underline" }}
+        className="font-semibold text-md"
+      >
+        More Details→
+      </Text>
     </View>
   );
 };
