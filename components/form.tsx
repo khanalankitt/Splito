@@ -1,6 +1,4 @@
 import {
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -20,11 +18,21 @@ export default function Form() {
   const [remark, setRemark] = useState<string>();
 
   const handleSubmit = () => {
-    alert(
-      `Who Paid: ${whoPaid}\nAmount: ${amount}\nSelected: ${selected.join(
-        ", "
-      )}\nRemark: ${remark}`
-    );
+    if (whoPaid == "" || amount == "" || selected == null || remark == "") {
+      alert("All fields are compulsary!");
+      return;
+    } else {
+      alert(
+        `Who Paid: ${whoPaid}\nAmount: ${amount}\nSelected: ${selected.join(
+          ", "
+        )}\nRemark: ${remark}`
+      );
+    }
+
+    setWhoPaid("");
+    setAmount("");
+    setSelected([]);
+    setRemark("");
   };
 
   const renderItem = (item: any) => {
@@ -48,8 +56,13 @@ export default function Form() {
 
   return (
     <ScrollView>
-      <View style={styles.form} className="bg-[#efeff3] border-[#b2afaf]">
-        <Text style={styles.formTitle}>Add payment details</Text>
+      <View style={styles.form}>
+        <Text
+          style={styles.formTitle}
+          className="text-primaryColor font-bold text-4xl w-full "
+        >
+          Add payment details
+        </Text>
         <Text className="font-bold text-xl w-[90%]">Who paid?</Text>
         <Dropdown
           style={styles.dropdownn}
@@ -65,6 +78,7 @@ export default function Form() {
           style={styles.amountInput}
           keyboardType="numeric"
           value={amount}
+          placeholder="Rs."
           onChangeText={(am) => setAmount(am)}
         />
         <Text style={styles.whopaid}>Divide amongst?</Text>
@@ -117,20 +131,15 @@ const styles = StyleSheet.create({
     paddingVertical: 20,
     borderRadius: 20,
     width: "90%",
-    borderWidth: 2,
     justifyContent: "flex-start",
     alignItems: "center",
   },
   formTitle: {
     textAlign: "center",
-    fontSize: 22,
     marginHorizontal: "auto",
-    width: 270,
     fontWeight: "bold",
     padding: 5,
     paddingHorizontal: 10,
-    color: "white",
-    backgroundColor: "#547bd4",
     borderRadius: 10,
   },
   dropdownn: {
@@ -139,7 +148,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     borderWidth: 2,
-    borderColor: "gray",
+    borderColor: "lightgray",
   },
   whopaid: {
     fontWeight: "bold",
@@ -149,7 +158,7 @@ const styles = StyleSheet.create({
   amountInput: {
     height: 50,
     borderWidth: 2,
-    borderColor: "gray",
+    borderColor: "lightgray",
     width: 300,
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -161,7 +170,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     borderWidth: 2,
-    borderColor: "grey",
+    borderColor: "lightgray",
   },
   placeholderStyle: {
     fontSize: 14,
@@ -186,7 +195,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: "grey",
+    borderColor: "lightgray",
     marginTop: 5,
     marginHorizontal: "auto",
     paddingHorizontal: 12,

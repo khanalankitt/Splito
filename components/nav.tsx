@@ -39,8 +39,8 @@ export default function Nav() {
         </Modal>
       </View>
       <View className="h-16 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">
-        <Text className="text-lg font-semibold text-white">
-          Split the bills like nobody does{" "}
+        <Text className="text-lg font-semibold -mt-6 text-white">
+          Split bills like nobody
         </Text>
       </View>
       <BottomBar
@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingLeft: 10,
     color: "white",
+    fontFamily: "SpaceMono",
   },
   button: {
     height: 35,

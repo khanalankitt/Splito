@@ -40,7 +40,7 @@ export default function RootLayout() {
           // options={{
           //   headerShown: true,
           //   headerTitle: "ankit",
-          //   headerTitleStyle: { fontFamily: "SpaceMono" },
+            // headerTitleStyle: { fontFamily: "SpaceMono" },
           // }}
         />
       </Stack>

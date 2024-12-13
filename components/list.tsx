@@ -1,21 +1,66 @@
-import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import {
+  FlatList,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import React, { useState } from "react";
 import data from "./data";
+import { Link } from "expo-router";
 
 export default function List() {
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
+  const [modalVisible, setModalVisible] = useState(false);
+  const handleModal = () => {
+    setModalVisible(!modalVisible);
+  };
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
-      <Text className="text-4xl mt-2 font-bold text-primaryColor">Users</Text>
+      <View className=" h-auto flex flex-row justify-between w-[100%] ">
+        <Text className="text-4xl mt-2 font-bold text-primaryColor">Users</Text>
+        <Pressable
+          className="h-auto w-auto flex items-center justify-center"
+          onPress={handleModal}
+        >
+          <Text className="bg-primaryColor text-white p-3 font-bold rounded-lg">
+            Add User
+          </Text>
+        </Pressable>
+      </View>
       <FlatList
         scrollEnabled
         data={data}
         className="mt-5 h-[70%]"
         renderItem={({ item }) => (
-          <MoneyItem name={item.name} clear={item.clear} />
+          <Link
+            href={{
+              pathname: "/user/[user]",
+              params: { user: item.name },
+            }}
+            asChild
+          >
+            <View>
+              <MoneyItem name={item.name} clear={item.clear} />
+            </View>
+          </Link>
         )}
         ItemSeparatorComponent={SeperatorComponent}
       />
+      <Modal
+        visible={modalVisible}
+        animationType="slide" 
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.pressableContainer}>
+          <Pressable onPress={handleModal}>
+            <Text className="text-5xl text-white font-bold text-left">
+              {" ←"}
+            </Text>
+          </Pressable>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -28,9 +73,9 @@ const MoneyItem = ({ name, clear }: dataTypes) => {
     <View style={styles.details}>
       <Text style={{ fontSize: 17, fontWeight: "bold" }}>{name}</Text>
       {clear ? (
-        <Text style={[styles.clear, styles.status]}>Clear</Text>
+        <Text className="text-green-600 font-extrabold text-lg">Clear</Text>
       ) : (
-        <Text style={[styles.notClear, styles.status]}>Not Clear</Text>
+        <Text className="text-red-500 font-extrabold text-lg">Not Clear</Text>
       )}
     </View>
   );
@@ -70,5 +115,12 @@ const styles = StyleSheet.create({
   },
   notClear: {
     backgroundColor: "#f40b0b",
+  },
+  pressableContainer: {
+    height: 60,
+    backgroundColor: "#547bd4",
+    alignItems: "flex-start",
+    justifyContent: "center",
+    paddingHorizontal: 5,
   },
 });
