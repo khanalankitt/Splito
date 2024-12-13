@@ -93,11 +93,11 @@ interface dataTypes {
 const MoneyItem = ({ name, clear }: dataTypes) => {
   return (
     <View style={styles.details}>
-      <Text style={{ fontSize: 17, fontWeight: "bold" }}>{name}</Text>
+      <Text style={{ fontSize: 20, fontWeight: "bold" }}>{name}</Text>
       {clear ? (
-        <Text className="text-green-600 font-extrabold text-lg">Clear</Text>
+        <Text className="text-green-600 font-semibold text-lg">Clear</Text>
       ) : (
-        <Text className="text-red-500 font-extrabold text-lg">Not Clear</Text>
+        <Text className="text-red-500 font-semibold text-lg">Not Clear</Text>
       )}
     </View>
   );

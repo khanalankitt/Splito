@@ -4,12 +4,12 @@ import {
   Text,
   View,
   Modal,
-  Button,
   StatusBar,
 } from "react-native";
 import React, { useState } from "react";
 import Form from "./form";
 import BottomBar from "./bottomBar";
+import { useFonts } from "expo-font";
 
 export default function Nav() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -57,7 +57,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingLeft: 10,
     color: "white",
-    fontFamily: "SpaceMono",
   },
   button: {
     height: 35,
