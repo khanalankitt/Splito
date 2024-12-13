@@ -18,7 +18,8 @@ export default function Form() {
   const [remark, setRemark] = useState<string>();
 
   const handleSubmit = () => {
-    if (whoPaid == "" || amount == "" || selected == null || remark == "") {
+
+    if (whoPaid == "" || amount == "" || selected[0] == '' || remark == "") {
       alert("All fields are compulsary!");
       return;
     } else {
@@ -28,7 +29,6 @@ export default function Form() {
         )}\nRemark: ${remark}`
       );
     }
-
     setWhoPaid("");
     setAmount("");
     setSelected([]);

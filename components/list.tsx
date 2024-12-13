@@ -4,6 +4,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import React, { useState } from "react";
@@ -11,11 +12,14 @@ import data from "./data";
 import { Link } from "expo-router";
 
 export default function List() {
+  const [newUser, setNewUser] = useState<string>();
+
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   const [modalVisible, setModalVisible] = useState(false);
   const handleModal = () => {
     setModalVisible(!modalVisible);
   };
+  const handleAddNewUser = () => {};
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
       <View className=" h-auto flex flex-row justify-between w-[100%] ">
@@ -37,7 +41,7 @@ export default function List() {
           <Link
             href={{
               pathname: "/user/[user]",
-              params: { userName: item.name },
+              params: { user: item.name },
             }}
             asChild
           >
@@ -58,6 +62,24 @@ export default function List() {
             <Text className="text-5xl text-white font-bold text-left">
               {" ←"}
             </Text>
+          </Pressable>
+        </View>
+        <View className="w-full items-center justify-center">
+          <Text className="text-3xl mt-5 font-bold text-primaryColor text-center">
+            Add New User
+          </Text>
+          <TextInput
+            value={newUser}
+            onChangeText={(text) => setNewUser(text)}
+            placeholder="Username"
+            className="h-16 border-2 mt-5 border-gray-400 w-[90%] rounded-md px-2 py-0 font-semibold text-xl"
+          />
+          <Pressable
+            style={styles.add}
+            className="bg-primaryColor rounded-lg "
+            onPress={handleAddNewUser}
+          >
+            <Text className="text-2xl text-white font-bold">Add</Text>
           </Pressable>
         </View>
       </Modal>
@@ -82,6 +104,11 @@ const MoneyItem = ({ name, clear }: dataTypes) => {
 };
 
 const styles = StyleSheet.create({
+  add: {
+    paddingVertical: 5,
+    paddingHorizontal: 50,
+    marginTop: 20,
+  },
   listContainer: {
     padding: 15,
     height: "auto",

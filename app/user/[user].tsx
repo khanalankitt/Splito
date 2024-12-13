@@ -1,34 +1,33 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text } from "react-native";
 import React from "react";
 import { useLocalSearchParams } from "expo-router";
 
 export default function DynamicUserPage() {
-  var { userName } = useLocalSearchParams();
+  var { user } = useLocalSearchParams();
   return (
     <View className="h-screen w-screen bg-[#f6f6e9] ">
-      <View className="h-auto w-full bg-primaryColor">
-        <Text style={styles.text} className="text-center">
-          Splito
+      <View className="h-24 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">
+        <Text className="text-4xl bg-pr font-bold text-white text-center">
+          {user}
         </Text>
       </View>
-      <View className="h-16 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">
-        <Text className="text-lg font-semibold -mt-6 text-white">
-          Split bills like nobody
+
+      <View className="h-auto w-[100%] flex items-center justify-center mt-5">
+        <Text className="text-left w-[90%] text-2xl mb-1 text-primaryColor font-semibold ">
+          Total
         </Text>
+
+        <View className="border-2 border-gray-400 border-dashed w-[90%] flex-row justify-between p-5 rounded-lg">
+          <View>
+            <Text className="text-xl font-bold text-red-600">To Pay</Text>
+            <Text className="text-xl font-bold text-green-600">To Receive</Text>
+          </View>
+          <View>
+            <Text className="text-xl font-bold text-red-600">रु.233</Text>
+            <Text className="text-xl font-bold text-green-600">रु.32</Text>
+          </View>
+        </View>
       </View>
-      <Text className="text-4xl font-bold text-primaryColor mt-5 text-center">
-        {userName}
-      </Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  text: {
-    fontSize: 40,
-    fontWeight: "bold",
-    paddingLeft: 10,
-    color: "white",
-    fontFamily: "SpaceMono",
-  },
-});
