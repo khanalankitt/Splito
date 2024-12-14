@@ -6,6 +6,7 @@ import {
   Text,
   TextInput,
   View,
+  ActivityIndicator,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
@@ -51,6 +52,7 @@ export default function List() {
 
   useEffect(() => {
     const fetchUsers = async () => {
+      setLoading(true);
       const res = await getUsers();
       const usersArray = Object.keys(res || {}).map((key) => ({
         id: key,
@@ -59,10 +61,11 @@ export default function List() {
         toReceive: res[key].toReceive,
       }));
       setUsers(usersArray);
+      setLoading(false);
     };
     fetchUsers();
   }, [trigger]);
-  // console.log(users);
+
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
       <View className=" h-auto flex flex-row justify-between w-[100%] ">
@@ -76,26 +79,34 @@ export default function List() {
           </Text>
         </Pressable>
       </View>
-      <FlatList
-        scrollEnabled
-        data={users}
-        className="mt-5 h-[70%]"
-        ListEmptyComponent={<ListEmptyComponent />}
-        renderItem={({ item }) => (
-          <Link
-            href={{
-              pathname: "/user/[user]",
-              params: { user: item.name },
-            }}
-            asChild
-          >
-            <Pressable>
-              <MoneyItem name={item.name} />
-            </Pressable>
-          </Link>
-        )}
-        ItemSeparatorComponent={SeperatorComponent}
-      />
+      {loading ? (
+        <ActivityIndicator
+          size="large"
+          style={{ marginTop: 100 }}
+          color="#547bd4"
+        />
+      ) : (
+        <FlatList
+          scrollEnabled
+          data={users}
+          className="mt-5 h-[70%]"
+          ListEmptyComponent={<ListEmptyComponent />}
+          renderItem={({ item }) => (
+            <Link
+              href={{
+                pathname: "/user/[user]",
+                params: { user: item.name },
+              }}
+              asChild
+            >
+              <Pressable>
+                <MoneyItem name={item.name} />
+              </Pressable>
+            </Link>
+          )}
+          ItemSeparatorComponent={SeperatorComponent}
+        />
+      )}
       <Modal
         visible={modalVisible}
         animationType="slide"
