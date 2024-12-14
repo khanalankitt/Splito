@@ -9,7 +9,6 @@ import {
 import React, { useState } from "react";
 import Form from "./form";
 import BottomBar from "./bottomBar";
-import { useFonts } from "expo-font";
 
 export default function Nav() {
   const [modalVisible, setModalVisible] = useState(false);
@@ -35,7 +34,7 @@ export default function Nav() {
               </Text>
             </Pressable>
           </View>
-          <Form />
+          <Form setModalVisible={setModalVisible} />
         </Modal>
       </View>
       <View className="h-16 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">

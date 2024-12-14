@@ -1,9 +1,18 @@
 import { View, Text, ScrollView } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { useLocalSearchParams } from "expo-router";
+import { getAllTransactions } from "../api/route";
 
 export default function DynamicUserPage() {
   var { user } = useLocalSearchParams();
+
+  useEffect(()=>{
+    const fetchData = async () => {
+      const res = await getAllTransactions();
+    };
+    fetchData();
+  },[]);
+
   return (
     <View className="h-screen w-screen bg-[#f6f6e9] ">
       <View className="h-24 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">

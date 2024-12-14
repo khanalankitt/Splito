@@ -10,21 +10,25 @@ import {
 import { postUserData } from "@/app/api/route";
 import React, { useEffect, useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-import data from "./data";
 import { getUsers } from "@/app/api/route";
-
-export default function Form() {
+interface ModalProps {
+  setModalVisible: (visible: boolean) => void;
+}
+export default function Form({ setModalVisible }: ModalProps) {
   const [whoPaid, setWhoPaid] = useState<string>();
   const [amount, setAmount] = useState<string>();
   const [selected, setSelected] = useState<string[]>([]);
   const [remark, setRemark] = useState<string>();
   const [users, setUsers] = useState<{ name: any }[]>([]);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchUsers = async () => {
       const res = await getUsers();
       const usersArray = Object.keys(res || {}).map((key) => ({
-        name: res[key], // Use the value as the name
+        id: key,
+        name: res[key].name,
+        toPay: res[key].toPay,
+        toReceive: res[key].toReceive,
       }));
       setUsers(usersArray);
     };
@@ -32,17 +36,11 @@ export default function Form() {
   }, []);
 
   const handleSubmit = async () => {
-    if (whoPaid == "" || amount == "" || selected[0] == "" || remark == "") {
+    if (whoPaid == "" || amount == "" || selected[0] == "" || remark == ""){
       alert("All fields are compulsary!");
       return;
-    } else {
-      alert(
-        `Who Paid: ${whoPaid}\nAmount: ${amount}\nSelected: ${selected.join(
-          ", "
-        )}\nRemark: ${remark}`
-      );
     }
-
+    setLoading(true);
     const transactionTimeStamp = new Date().toLocaleString("en-US", {
       month: "2-digit",
       day: "2-digit",
@@ -58,12 +56,14 @@ export default function Form() {
       selected: selected,
       remark: remark,
       transactionTimeStamp: transactionTimeStamp,
+      calculated:false
     });
-
+    setLoading(false);
     setWhoPaid("");
     setAmount("");
     setSelected([]);
     setRemark("");
+    setModalVisible(false);
   };
 
   const renderItem = (item: any) => {
@@ -143,9 +143,15 @@ export default function Form() {
           onChangeText={(text) => setRemark(text)}
         />
         <Pressable onPress={handleSubmit}>
-          <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
-            Submit
-          </Text>
+          {loading ? (
+            <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
+              Loading...
+            </Text>
+          ) : (
+            <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
+              Save Payment
+            </Text>
+          )}
         </Pressable>
       </View>
     </ScrollView>

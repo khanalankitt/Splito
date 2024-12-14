@@ -11,16 +11,15 @@ import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
 import { postUsers, getUsers } from "@/app/api/route";
 
+interface User {
+  name: string;
+}
 export default function List() {
   const [newUser, setNewUser] = useState<string>();
-  interface User {
-    name: string;
-  }
   const [users, setUsers] = useState<User[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [trigger, setTrigger] = useState(false);
   const [loading, setLoading] = useState(false);
-
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   const ListEmptyComponent = () => (
     <Text style={{ marginTop: 100 }} className="text-center text-xl">
@@ -33,12 +32,17 @@ export default function List() {
   };
 
   const handleAddNewUser = async () => {
-    if (newUser == "") {
+    if (!newUser || newUser.trim() === "") {
       alert("User Name cannot be empty!");
       return;
     }
     setLoading(true);
-    await postUsers("Users", newUser);
+    await postUsers(`${newUser}`, {
+      name: newUser,
+      toPay: 0,
+      toReceive: 0,
+    });
+
     setNewUser("");
     setTrigger(!trigger);
     setLoading(false);
@@ -49,14 +53,16 @@ export default function List() {
     const fetchUsers = async () => {
       const res = await getUsers();
       const usersArray = Object.keys(res || {}).map((key) => ({
-        id: key, // Use the key as a unique ID
-        name: res[key], // Use the value as the name
+        id: key,
+        name: res[key].name,
+        toPay: res[key].toPay,
+        toReceive: res[key].toReceive,
       }));
       setUsers(usersArray);
     };
     fetchUsers();
   }, [trigger]);
-
+  // console.log(users);
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
       <View className=" h-auto flex flex-row justify-between w-[100%] ">
