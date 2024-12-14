@@ -1,4 +1,5 @@
 import {
+  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -36,7 +37,7 @@ export default function Form({ setModalVisible }: ModalProps) {
   }, []);
 
   const handleSubmit = async () => {
-    if (whoPaid == "" || amount == "" || selected[0] == "" || remark == ""){
+    if (whoPaid == "" || amount == "" || selected[0] == "" || remark == "") {
       alert("All fields are compulsary!");
       return;
     }
@@ -56,7 +57,7 @@ export default function Form({ setModalVisible }: ModalProps) {
       selected: selected,
       remark: remark,
       transactionTimeStamp: transactionTimeStamp,
-      calculated:false
+      calculated: false,
     });
     setLoading(false);
     setWhoPaid("");
@@ -145,7 +146,7 @@ export default function Form({ setModalVisible }: ModalProps) {
         <Pressable onPress={handleSubmit}>
           {loading ? (
             <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
-              Loading...
+              <ActivityIndicator size="large" color="white" />
             </Text>
           ) : (
             <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">

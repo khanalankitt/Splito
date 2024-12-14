@@ -135,7 +135,13 @@ export default function List() {
             onPress={handleAddNewUser}
           >
             <Text className="text-2xl text-white font-bold">
-              {loading ? <Text>loading...</Text> : <Text>Add</Text>}
+              {loading ? (
+                <Text>
+                  <ActivityIndicator size="large" color="white" />
+                </Text>
+              ) : (
+                <Text>Add</Text>
+              )}
             </Text>
           </Pressable>
         </View>

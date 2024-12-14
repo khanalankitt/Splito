@@ -1,4 +1,4 @@
-import { ref, set, get } from "firebase/database";
+import { ref, set, get, update } from "firebase/database";
 import database from "../../firebaseConfig";
 
 export const postUserData = async (userId: string, userData: object) => {
@@ -48,143 +48,138 @@ export const getUsers = async () => {
 
 export const getAllTransactions = async () => {
   try {
-    const transactionSnapshot = await get(
-      ref(database, "IndivdualTransactions")
-    );
-    if (transactionSnapshot.exists()) {
-      var transactions = transactionSnapshot.val();
+    const [transactionSnapshot, userSnapshot] = await Promise.all([
+      get(ref(database, "IndivdualTransactions")),
+      get(ref(database, "Users")),
+    ]);
+
+    const transactions = transactionSnapshot.exists()
+      ? transactionSnapshot.val()
+      : {};
+    const users = userSnapshot.exists() ? userSnapshot.val() : {};
+
+    if (!transactions || !Object.keys(transactions).length || !users) {
+      console.log("No transactions or users available");
+      return { users: [] };
     }
 
-    const userSnapShot = await get(ref(database, "Users"));
-    if (userSnapShot.exists()) {
-      var users = userSnapShot.val();
-    }
+    const batchUpdates: Record<string, any> = {};
 
-    if (transactions && typeof transactions === "object") {
-      Object.keys(transactions).forEach(async (key) => {
-        let calculated = transactions[key].calculated;
-        if (calculated) {
-          return;
-        }
-        transactions[key].calculated = true;
-        await set(
-          ref(database, `IndivdualTransactions/${key}`),
-          transactions[key]
-        );
-        let amount = transactions[key].amount;
-        let length = transactions[key].selected.length;
-        let dividedAmount = (amount / length).toFixed(2);
-        let selectedUsers = transactions[key].selected;
-        let whoPaid = transactions[key].whoPaid;
+    // Process each transaction
+    Object.entries(transactions).forEach(([key, transaction]: any) => {
+      if (transaction.calculated) return;
 
-        selectedUsers.forEach(async (item: any) => {
-          const userRef = ref(database, `Users/${item}`);
-          const userSnapshot = await get(userRef);
-          if (userSnapshot.exists()) {
-            const userData = userSnapshot.val();
-            if (item !== whoPaid) {
-              const updatedToPay = (
-                parseFloat(userData.toPay || 0) + parseFloat(dividedAmount)
-              ).toFixed(2);
-              await set(userRef, {
-                ...userData,
-                toPay: updatedToPay,
-              });
-            } else {
-              const updatedToReceive = (
-                parseFloat(userData.toReceive || 0) +
-                (amount - parseFloat(dividedAmount))
-              ).toFixed(2);
-              await set(userRef, {
-                ...userData,
-                toReceive: updatedToReceive,
-              });
-            }
-          }
-        });
-      });
+      const { amount, selected, whoPaid } = transaction;
+      const dividedAmount = (amount / selected.length).toFixed(2);
 
-      const result = {
-        users: Object.keys(users).map((userId) => {
-          const userTransactionsToPay = Object.keys(transactions)
-            .map((transactionId) => {
-              const transaction = transactions[transactionId];
-              if (
-                transaction.selected.includes(userId) &&
-                transaction.whoPaid !== userId
-              ) {
-                return {
-                  transactionId,
-                  amountToPay: (
-                    transaction.amount / transaction.selected.length
-                  ).toFixed(2),
-                  toUser: transaction.whoPaid,
-                };
-              }
-              return null;
-            })
-            .filter(Boolean)
-            .reduce((acc: any[], curr: any) => {
-              const existingTransaction = acc.find(
-                (t: any) => t.toUser === curr.toUser
-              );
-              if (existingTransaction) {
-                existingTransaction.amountToPay = (
-                  parseFloat(existingTransaction.amountToPay) +
-                  parseFloat(curr.amountToPay)
-                ).toFixed(2);
-              } else {
-                acc.push(curr);
-              }
-              return acc;
-            }, []);
-
-          const userTransactionsToReceive = Object.keys(transactions)
-            .map((transactionId) => {
-              const transaction = transactions[transactionId];
-              if (transaction.whoPaid === userId) {
-                const receivingUsers = transaction.selected.filter(
-                  (item: string) => item !== userId
-                );
-                return receivingUsers.map((receiver: any) => ({
-                  transactionId,
-                  amountToReceive: (
-                    transaction.amount / transaction.selected.length
-                  ).toFixed(2),
-                  fromUser: receiver,
-                }));
-              }
-              return null;
-            })
-            .flat()
-            .filter(Boolean)
-            .reduce((acc: any[], curr: any) => {
-              const existingTransaction = acc.find(
-                (t: any) => t.fromUser === curr.fromUser
-              );
-              if (existingTransaction) {
-                existingTransaction.amountToReceive = (
-                  parseFloat(existingTransaction.amountToReceive) +
-                  parseFloat(curr.amountToReceive)
-                ).toFixed(2);
-              } else {
-                acc.push(curr);
-              }
-              return acc;
-            }, []);
-
-          return {
-            name: users[userId].name || "Unknown",
-            toPay: users[userId].toPay || "0.00",
-            toReceive: users[userId].toReceive || "0.00",
-            transactionsToPay: userTransactionsToPay,
-            transactionsToReceive: userTransactionsToReceive,
-          };
-        }),
+      batchUpdates[`IndivdualTransactions/${key}`] = {
+        ...transaction,
+        calculated: true,
       };
 
-      return result;
-    }
+      selected.forEach((userId: string) => {
+        const user = users[userId] || { toPay: "0.00", toReceive: "0.00" };
+
+        if (userId !== whoPaid) {
+          const updatedToPay = (
+            parseFloat(user.toPay || "0.00") + parseFloat(dividedAmount)
+          ).toFixed(2);
+          batchUpdates[`Users/${userId}`] = {
+            ...user,
+            toPay: updatedToPay,
+          };
+        } else {
+          const updatedToReceive = (
+            parseFloat(user.toReceive || "0.00") +
+            parseFloat(amount) -
+            parseFloat(dividedAmount)
+          ).toFixed(2);
+          batchUpdates[`Users/${userId}`] = {
+            ...user,
+            toReceive: updatedToReceive,
+          };
+        }
+      });
+    });
+
+    await update(ref(database), batchUpdates);
+
+    const [updatedTransactionSnapshot, updatedUserSnapshot] = await Promise.all(
+      [get(ref(database, "IndivdualTransactions")), get(ref(database, "Users"))]
+    );
+
+    const updatedTransactions = updatedTransactionSnapshot.exists()
+      ? updatedTransactionSnapshot.val()
+      : {};
+    const updatedUsers = updatedUserSnapshot.exists()
+      ? updatedUserSnapshot.val()
+      : {};
+
+    // Process the aggregated data for the UI
+    const result = {
+      users: Object.keys(updatedUsers).map((userId) => {
+        const userTransactionsToPay = Object.values(updatedTransactions)
+          .filter(
+            (transaction: any) =>
+              transaction.selected.includes(userId) &&
+              transaction.whoPaid !== userId
+          )
+          .reduce((acc: any[], transaction: any) => {
+            const amountToPay = (
+              transaction.amount / transaction.selected.length
+            ).toFixed(2);
+            const existing = acc.find((t) => t.toUser === transaction.whoPaid);
+            if (existing) {
+              existing.amountToPay = (
+                parseFloat(existing.amountToPay) + parseFloat(amountToPay)
+              ).toFixed(2);
+            } else {
+              acc.push({
+                transactionId: transaction.id,
+                amountToPay,
+                toUser: transaction.whoPaid,
+              });
+            }
+            return acc;
+          }, []);
+
+        const userTransactionsToReceive = Object.values(updatedTransactions)
+          .filter((transaction: any) => transaction.whoPaid === userId)
+          .reduce((acc: any[], transaction: any) => {
+            const amountToReceive = (
+              transaction.amount / transaction.selected.length
+            ).toFixed(2);
+            transaction.selected
+              .filter((item: string) => item !== userId)
+              .forEach((fromUser: any) => {
+                const existing = acc.find((t) => t.fromUser === fromUser);
+                if (existing) {
+                  existing.amountToReceive = (
+                    parseFloat(existing.amountToReceive) +
+                    parseFloat(amountToReceive)
+                  ).toFixed(2);
+                } else {
+                  acc.push({
+                    transactionId: transaction.id,
+                    amountToReceive,
+                    fromUser,
+                  });
+                }
+              });
+            return acc;
+          }, []);
+
+        return {
+          name: updatedUsers[userId]?.name || "Unknown",
+          toPay: updatedUsers[userId]?.toPay || "0.00",
+          toReceive: updatedUsers[userId]?.toReceive || "0.00",
+          transactionsToPay: userTransactionsToPay,
+          transactionsToReceive: userTransactionsToReceive,
+        };
+      }),
+    };
+
+    return result;
   } catch (error) {
     console.error("Error fetching transactions:", error);
     throw error;
