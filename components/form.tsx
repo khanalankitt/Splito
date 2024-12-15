@@ -19,7 +19,6 @@ export default function Form({ setModalVisible }: ModalProps) {
   const [whoPaid, setWhoPaid] = useState<string>();
   const [amount, setAmount] = useState<string>();
   const [selected, setSelected] = useState<string[]>([]);
-  const [remark, setRemark] = useState<string>();
   const [users, setUsers] = useState<{ name: any }[]>([]);
   const [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -37,7 +36,7 @@ export default function Form({ setModalVisible }: ModalProps) {
   }, []);
 
   const handleSubmit = async () => {
-    if (whoPaid == "" || amount == "" || selected[0] == "" || remark == "") {
+    if (whoPaid == "" || amount == "" || selected[0] == "") {
       alert("All fields are compulsary!");
       return;
     }
@@ -55,7 +54,6 @@ export default function Form({ setModalVisible }: ModalProps) {
       whoPaid: whoPaid,
       amount: amount,
       selected: selected,
-      remark: remark,
       transactionTimeStamp: transactionTimeStamp,
       calculated: false,
     });
@@ -63,7 +61,6 @@ export default function Form({ setModalVisible }: ModalProps) {
     setWhoPaid("");
     setAmount("");
     setSelected([]);
-    setRemark("");
     setModalVisible(false);
   };
 
@@ -135,13 +132,6 @@ export default function Form({ setModalVisible }: ModalProps) {
               </View>
             </TouchableOpacity>
           )}
-        />
-        <Text style={styles.whopaid}>Remark</Text>
-        <TextInput
-          style={styles.amountInput}
-          placeholder="Note"
-          value={remark}
-          onChangeText={(text) => setRemark(text)}
         />
         <Pressable onPress={handleSubmit}>
           {loading ? (
