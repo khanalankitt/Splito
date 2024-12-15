@@ -8,11 +8,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import {
-  deleteTransactions,
-  getAllTransactions,
-  updateTransactionInDatabase,
-} from "../api/route";
+import { deleteTransactions, getAllTransactions } from "../api/route";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface UserDetails {
@@ -35,49 +31,13 @@ interface deleteParams {
   whoPaid: string;
   whoReceived: string;
   amount: number;
-  // transactionId:string;
 }
 
 export default function DynamicUserPage() {
   const { user } = useLocalSearchParams();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [trigger, setTrigger] = useState(false);
-
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       setLoading(true);
-  //       const res = await getAllTransactions();
-  //       if (res) {
-  //         const currentUserDetails = res.users.find(
-  //           (detail) => detail.name === user
-  //         );
-  //         if (currentUserDetails) {
-  //           setUserDetails({
-  //             ...currentUserDetails,
-  //             transactionsToPay: currentUserDetails.transactionsToPay
-  //               .filter((transaction) => transaction !== null)
-  //               .map((transaction) => ({
-  //                 ...transaction,
-  //                 amountToPay: Number(transaction.amountToPay),
-  //               })),
-  //           });
-  //         } else {
-  //           setUserDetails(null);
-  //         }
-  //       } else {
-  //         setUserDetails(null);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching transactions:", error);
-  //       setUserDetails(null);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [user]);
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -121,58 +81,11 @@ export default function DynamicUserPage() {
     fetchData();
   }, [user]);
 
-  // const handleDeleteItem = async (deleteParams: deleteParams) => {
-  //   try {
-  //     // Delete the specific transaction from the database
-  //     await deleteTransactions(
-  //       deleteParams.whoPaid,
-  //       deleteParams.whoReceived,
-  //       deleteParams.amount
-  //     );
-
-  //     // Remove the transaction from database completely
-  //     await updateTransactionInDatabase(
-  //       deleteParams.whoPaid,
-  //       deleteParams.whoReceived,
-  //       deleteParams.amount
-  //     );
-
-  //     // Immediately update local state
-  //     setUserDetails((prevDetails) => {
-  //       if (!prevDetails) return null;
-
-  //       const updatedTransactionsToReceive =
-  //         prevDetails.transactionsToReceive.filter(
-  //           (transaction) =>
-  //             !(
-  //               transaction.fromUser === deleteParams.whoPaid &&
-  //               transaction.amountToReceive === deleteParams.amount
-  //             )
-  //         );
-
-  //       const newToReceive = updatedTransactionsToReceive
-  //         .reduce(
-  //           (sum, transaction) =>
-  //             sum + parseFloat(transaction.amountToReceive.toString()),
-  //           0
-  //         )
-  //         .toFixed(2);
-
-  //       return {
-  //         ...prevDetails,
-  //         transactionsToReceive: updatedTransactionsToReceive,
-  //         toReceive: parseFloat(newToReceive),
-  //       };
-  //     });
-  //   } catch (error) {
-  //     console.error("Error deleting transaction:", error);
-  //   }
-  // };
-
   const handleDeleteItem = async (
     deleteParams: deleteParams,
     transactionId: string
   ) => {
+    setDeleteLoading(true);    
     try {
       // Call deleteTransactions with the transactionId
       await deleteTransactions(
@@ -209,7 +122,9 @@ export default function DynamicUserPage() {
           toReceive: parseFloat(newToReceive),
         };
       });
+      setDeleteLoading(false);
     } catch (error) {
+      setDeleteLoading(false);
       console.error("Error deleting transaction:", error);
     }
   };
@@ -286,6 +201,8 @@ export default function DynamicUserPage() {
             transactions={userDetails.transactionsToReceive}
             color="green"
             handleDeleteItem={handleDeleteItem}
+            deleteLoading={deleteLoading}
+            setDeleteLoading={setDeleteLoading}
           />
         </ScrollView>
       )}
@@ -293,7 +210,13 @@ export default function DynamicUserPage() {
   );
 }
 
-const Section = ({ title, transactions, color, handleDeleteItem }: any) => (
+const Section = ({
+  title,
+  transactions,
+  color,
+  handleDeleteItem,
+  deleteLoading,
+}: any) => (
   <View
     className="h-auto w-[90%] flex items-center justify-center mt-5 rounded-xl py-5 border-dotted border-primaryColor"
     style={{ borderWidth: 1 }}
@@ -345,12 +268,20 @@ const Section = ({ title, transactions, color, handleDeleteItem }: any) => (
                 }
               >
                 <Text className="text-3xl">
-                  <MaterialIcons
-                    name="delete"
-                    style={{ padding: 20 }}
-                    size={30}
-                    color="#df2626"
-                  />
+                  {deleteLoading ? (
+                    <ActivityIndicator
+                      // className="mt-2"
+                      size="large"
+                      color="#547bd4"
+                    />
+                  ) : (
+                    <MaterialIcons
+                      name="delete"
+                      style={{ padding: 20 }}
+                      size={30}
+                      color="#df2626"
+                    />
+                  )}
                 </Text>
               </Pressable>
             )}

@@ -1,8 +1,16 @@
 import { ref, set, get, update } from "firebase/database";
 import database from "../../firebaseConfig";
-import { addLogBoxLog } from "react-native-reanimated/lib/typescript/logger";
-
-export const postUserData = async (userId: string, userData: object) => {
+interface det {
+  whoPaid: any;
+  amount: any;
+  selected: any;
+  transactionTimeStamp: string;
+  calculated: boolean;
+}
+export const postUserData = async (
+  userId: string,
+  { whoPaid, amount, selected, transactionTimeStamp, calculated }: det
+) => {
   const dateAndTime = `Transaction ${new Date()
     .toLocaleString("en-US", {
       month: "2-digit",
@@ -16,7 +24,13 @@ export const postUserData = async (userId: string, userData: object) => {
     .replace(/\//g, "-")}`;
 
   try {
-    await set(ref(database, `IndivdualTransactions/${dateAndTime}`), userData);
+    await set(ref(database, `IndivdualTransactions/${transactionTimeStamp}`), {
+      whoPaid,
+      amount,
+      selected,
+      transactionTimeStamp,
+      calculated,
+    });
   } catch (error) {
     console.error("Error writing data:", error);
     throw error;
@@ -201,42 +215,6 @@ export const getAllTransactions = async () => {
   }
 };
 
-// export const deleteTransactions = async (
-//   whoPaid: string,
-//   whoReceived: string,
-//   amount: number
-// ) => {
-//   try {
-//     const payerSnapshot = await get(ref(database, `Users/${whoPaid}`));
-//     const receiverSnapshot = await get(ref(database, `Users/${whoReceived}`));
-
-//     if (!payerSnapshot.exists() || !receiverSnapshot.exists()) {
-//       throw new Error("Payer or receiver does not exist");
-//     }
-
-//     const payer = payerSnapshot.val();
-//     const receiver = receiverSnapshot.val();
-
-//     const updatedPayerToPay = Math.max(
-//       0,
-//       parseFloat(payer.toPay) - amount
-//     ).toFixed(2);
-//     const updatedReceiverToReceive = Math.max(
-//       0,
-//       parseFloat(receiver.toReceive) - amount
-//     ).toFixed(2);
-
-//     await set(ref(database, `Users/${whoPaid}/toPay`), updatedPayerToPay);
-//     await set(
-//       ref(database, `Users/${whoReceived}/toReceive`),
-//       updatedReceiverToReceive
-//     );
-//   } catch (error) {
-//     console.error("Error deleting transaction:", error);
-//     throw error;
-//   }
-// };
-
 export const deleteTransactions = async (
   whoPaid: string,
   whoReceived: string,
@@ -246,9 +224,25 @@ export const deleteTransactions = async (
   try {
     const payerSnapshot = await get(ref(database, `Users/${whoPaid}`));
     const receiverSnapshot = await get(ref(database, `Users/${whoReceived}`));
-    const transactionSnapshot = await get(ref(database, `IndivdualTransactions/${transactionId}`));
+    console.log(transactionId);
 
-    if (!payerSnapshot.exists() || !receiverSnapshot.exists() || !transactionSnapshot.exists()) {
+    const transactionSnapshot = await get(
+      ref(database, `IndivdualTransactions/${transactionId}`)
+    );
+
+    if (
+      !payerSnapshot.exists() ||
+      !receiverSnapshot.exists() ||
+      !transactionSnapshot.exists()
+    ) {
+      console.log(
+        "-----------------------------------------------------------------------------"
+      );
+
+      console.log(
+        `${payerSnapshot.val()}---${receiverSnapshot.val()}---${transactionSnapshot.val()}`
+      );
+
       throw new Error("Payer, receiver, or transaction does not exist");
     }
 
@@ -257,23 +251,39 @@ export const deleteTransactions = async (
     const transaction = transactionSnapshot.val();
 
     // Subtract the amount from the payer's and receiver's balances
-    const updatedPayerToPay = Math.max(0, parseFloat(payer.toPay) - amount).toFixed(2);
-    const updatedReceiverToReceive = Math.max(0, parseFloat(receiver.toReceive) - amount).toFixed(2);
+    const updatedPayerToPay = Math.max(
+      0,
+      parseFloat(payer.toPay) - amount
+    ).toFixed(2);
+    const updatedReceiverToReceive = Math.max(
+      0,
+      parseFloat(receiver.toReceive) - amount
+    ).toFixed(2);
 
     // Update the users' balances
     await set(ref(database, `Users/${whoPaid}/toPay`), updatedPayerToPay);
-    await set(ref(database, `Users/${whoReceived}/toReceive`), updatedReceiverToReceive);
+    await set(
+      ref(database, `Users/${whoReceived}/toReceive`),
+      updatedReceiverToReceive
+    );
 
     // Update the transaction: subtract the amount and remove the payer from the selected array
     const updatedTransaction = { ...transaction };
-    updatedTransaction.amount = (parseFloat(transaction.amount) - amount).toFixed(2);
-    updatedTransaction.selected = updatedTransaction.selected.filter((userId: string) => userId !== whoPaid);
+    updatedTransaction.amount = (
+      parseFloat(transaction.amount) - amount
+    ).toFixed(2);
+    updatedTransaction.selected = updatedTransaction.selected.filter(
+      (userId: string) => userId !== whoPaid
+    );
 
     // If no users are left in the selected array, we might want to delete the transaction or mark it as completed
     if (updatedTransaction.selected.length === 0) {
       await set(ref(database, `IndivdualTransactions/${transactionId}`), null); // Delete the transaction if no one is left
     } else {
-      await set(ref(database, `IndivdualTransactions/${transactionId}`), updatedTransaction); // Update the transaction
+      await set(
+        ref(database, `IndivdualTransactions/${transactionId}`),
+        updatedTransaction
+      ); // Update the transaction
     }
 
     console.log("Transaction and user balances updated successfully!");
@@ -282,7 +292,6 @@ export const deleteTransactions = async (
     throw error;
   }
 };
-
 
 export const updateTransactionInDatabase = async (
   whoPaid: string,
