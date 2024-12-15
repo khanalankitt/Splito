@@ -155,15 +155,28 @@ const Section = ({ title, transactions, color }: any) => (
             backgroundColor: "#fefeff",
             marginBottom: 10,
             borderWidth: 1,
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
           }}
           className="w-[90%] rounded-lg border-gray-300 items-start"
         >
-          <Text className="text-xl ml-5 font-bold">
-            {transaction.toUser || transaction.fromUser}
-          </Text>
-          <Text className={`text-2xl font-bold text-${color}-600 ml-5`}>
-            रु. {transaction.amountToPay || transaction.amountToReceive}
-          </Text>
+          <View>
+            <Text className="text-xl ml-5 font-bold">
+              {transaction.toUser || transaction.fromUser}
+            </Text>
+            <Text className={`text-2xl font-bold text-${color}-600 ml-5`}>
+              रु. {transaction.amountToPay || transaction.amountToReceive}
+            </Text>
+          </View>
+          <View
+            className="flex flex-row border-2"
+            style={{ marginRight: 20, padding: 5 }}
+          >
+            <Text>Delete</Text>
+            <Text>Edit</Text>
+          </View>
         </View>
       ))
     ) : (
