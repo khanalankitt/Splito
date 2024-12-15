@@ -1,7 +1,14 @@
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
 import { getAllTransactions } from "../api/route";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface UserDetails {
   name: string;
@@ -58,6 +65,7 @@ export default function DynamicUserPage() {
     };
     fetchData();
   }, [user]);
+
 
   return (
     <View className="h-screen w-screen bg-[#f6f6e9]">
@@ -139,7 +147,7 @@ export default function DynamicUserPage() {
 
 const Section = ({ title, transactions, color }: any) => (
   <View
-    className="h-auto w-[90%] flex items-center justify-center mt-5 rounded-xl py-5 border-dotted border-primaryColor"
+    className="h-auto w-[90%] flex items-center justify-center mt-5 mb-5 rounded-xl py-5 border-dotted border-primaryColor"
     style={{ borderWidth: 1 }}
   >
     <Text className="text-2xl text-primaryColor font-semibold mb-5">
@@ -171,11 +179,21 @@ const Section = ({ title, transactions, color }: any) => (
             </Text>
           </View>
           <View
-            className="flex flex-row border-2"
-            style={{ marginRight: 20, padding: 5 }}
+            className="flex flex-row"
+            style={{ marginRight: 20, padding: 5, gap: 10 }}
           >
-            <Text>Delete</Text>
-            <Text>Edit</Text>
+            {title === "To Receive" && (
+              <Pressable>
+                <Text className="text-3xl">
+                  <MaterialIcons
+                    name="delete"
+                    style={{ padding: 20 }}
+                    size={30}
+                    color="#df2626"
+                  />
+                </Text>
+              </Pressable>
+            )}
           </View>
         </View>
       ))
