@@ -4,10 +4,15 @@ import {
   ScrollView,
   ActivityIndicator,
   Pressable,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { getAllTransactions } from "../api/route";
+import {
+  deleteTransactions,
+  getAllTransactions,
+  updateTransactionInDatabase,
+} from "../api/route";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface UserDetails {
@@ -26,20 +31,70 @@ interface UserDetails {
   }[];
 }
 
+interface deleteParams {
+  whoPaid: string;
+  whoReceived: string;
+  amount: number;
+  // transactionId:string;
+}
+
 export default function DynamicUserPage() {
   const { user } = useLocalSearchParams();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [trigger, setTrigger] = useState(false);
+
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       setLoading(true);
+  //       const res = await getAllTransactions();
+  //       if (res) {
+  //         const currentUserDetails = res.users.find(
+  //           (detail) => detail.name === user
+  //         );
+  //         if (currentUserDetails) {
+  //           setUserDetails({
+  //             ...currentUserDetails,
+  //             transactionsToPay: currentUserDetails.transactionsToPay
+  //               .filter((transaction) => transaction !== null)
+  //               .map((transaction) => ({
+  //                 ...transaction,
+  //                 amountToPay: Number(transaction.amountToPay),
+  //               })),
+  //           });
+  //         } else {
+  //           setUserDetails(null);
+  //         }
+  //       } else {
+  //         setUserDetails(null);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching transactions:", error);
+  //       setUserDetails(null);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [user]);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const res = await getAllTransactions();
+
+        // Add console logs
+        console.log("Fetched Transactions Result:", res);
+
         if (res) {
           const currentUserDetails = res.users.find(
             (detail) => detail.name === user
           );
+
+          console.log("Current User Details:", currentUserDetails);
+
           if (currentUserDetails) {
             setUserDetails({
               ...currentUserDetails,
@@ -66,6 +121,98 @@ export default function DynamicUserPage() {
     fetchData();
   }, [user]);
 
+  // const handleDeleteItem = async (deleteParams: deleteParams) => {
+  //   try {
+  //     // Delete the specific transaction from the database
+  //     await deleteTransactions(
+  //       deleteParams.whoPaid,
+  //       deleteParams.whoReceived,
+  //       deleteParams.amount
+  //     );
+
+  //     // Remove the transaction from database completely
+  //     await updateTransactionInDatabase(
+  //       deleteParams.whoPaid,
+  //       deleteParams.whoReceived,
+  //       deleteParams.amount
+  //     );
+
+  //     // Immediately update local state
+  //     setUserDetails((prevDetails) => {
+  //       if (!prevDetails) return null;
+
+  //       const updatedTransactionsToReceive =
+  //         prevDetails.transactionsToReceive.filter(
+  //           (transaction) =>
+  //             !(
+  //               transaction.fromUser === deleteParams.whoPaid &&
+  //               transaction.amountToReceive === deleteParams.amount
+  //             )
+  //         );
+
+  //       const newToReceive = updatedTransactionsToReceive
+  //         .reduce(
+  //           (sum, transaction) =>
+  //             sum + parseFloat(transaction.amountToReceive.toString()),
+  //           0
+  //         )
+  //         .toFixed(2);
+
+  //       return {
+  //         ...prevDetails,
+  //         transactionsToReceive: updatedTransactionsToReceive,
+  //         toReceive: parseFloat(newToReceive),
+  //       };
+  //     });
+  //   } catch (error) {
+  //     console.error("Error deleting transaction:", error);
+  //   }
+  // };
+
+  const handleDeleteItem = async (
+    deleteParams: deleteParams,
+    transactionId: string
+  ) => {
+    try {
+      // Call deleteTransactions with the transactionId
+      await deleteTransactions(
+        deleteParams.whoPaid,
+        deleteParams.whoReceived,
+        deleteParams.amount,
+        transactionId // Pass the transaction ID
+      );
+
+      // Immediately update the local state (userDetails) after deletion
+      setUserDetails((prevDetails) => {
+        if (!prevDetails) return null;
+
+        const updatedTransactionsToReceive =
+          prevDetails.transactionsToReceive.filter(
+            (transaction) =>
+              !(
+                transaction.fromUser === deleteParams.whoPaid &&
+                transaction.amountToReceive === deleteParams.amount
+              )
+          );
+
+        const newToReceive = updatedTransactionsToReceive
+          .reduce(
+            (sum, transaction) =>
+              sum + parseFloat(transaction.amountToReceive.toString()),
+            0
+          )
+          .toFixed(2);
+
+        return {
+          ...prevDetails,
+          transactionsToReceive: updatedTransactionsToReceive,
+          toReceive: parseFloat(newToReceive),
+        };
+      });
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+    }
+  };
 
   return (
     <View className="h-screen w-screen bg-[#f6f6e9]">
@@ -138,6 +285,7 @@ export default function DynamicUserPage() {
             title="To Receive"
             transactions={userDetails.transactionsToReceive}
             color="green"
+            handleDeleteItem={handleDeleteItem}
           />
         </ScrollView>
       )}
@@ -145,9 +293,9 @@ export default function DynamicUserPage() {
   );
 }
 
-const Section = ({ title, transactions, color }: any) => (
+const Section = ({ title, transactions, color, handleDeleteItem }: any) => (
   <View
-    className="h-auto w-[90%] flex items-center justify-center mt-5 mb-5 rounded-xl py-5 border-dotted border-primaryColor"
+    className="h-auto w-[90%] flex items-center justify-center mt-5 rounded-xl py-5 border-dotted border-primaryColor"
     style={{ borderWidth: 1 }}
   >
     <Text className="text-2xl text-primaryColor font-semibold mb-5">
@@ -183,7 +331,19 @@ const Section = ({ title, transactions, color }: any) => (
             style={{ marginRight: 20, padding: 5, gap: 10 }}
           >
             {title === "To Receive" && (
-              <Pressable>
+              <Pressable
+                onPress={() =>
+                  handleDeleteItem(
+                    {
+                      whoPaid: transaction.fromUser,
+                      whoReceived: transaction.receiver,
+                      amount:
+                        transaction.amountToPay || transaction.amountToReceive,
+                    },
+                    transaction.transactionId
+                  )
+                }
+              >
                 <Text className="text-3xl">
                   <MaterialIcons
                     name="delete"
