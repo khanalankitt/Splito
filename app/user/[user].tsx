@@ -1,15 +1,7 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  Pressable,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useLocalSearchParams } from "expo-router";
-import { deleteTransactions, getAllTransactions } from "../api/route";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { getAllTransactions } from "../api/route";
 
 interface UserDetails {
   name: string;
@@ -27,34 +19,20 @@ interface UserDetails {
   }[];
 }
 
-interface deleteParams {
-  whoPaid: string;
-  whoReceived: string;
-  amount: number;
-}
-
 export default function DynamicUserPage() {
   const { user } = useLocalSearchParams();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
         const res = await getAllTransactions();
-
-        // Add console logs
-        console.log("Fetched Transactions Result:", res);
-
         if (res) {
           const currentUserDetails = res.users.find(
             (detail) => detail.name === user
           );
-
-          console.log("Current User Details:", currentUserDetails);
-
           if (currentUserDetails) {
             setUserDetails({
               ...currentUserDetails,
@@ -80,54 +58,6 @@ export default function DynamicUserPage() {
     };
     fetchData();
   }, [user]);
-
-  const handleDeleteItem = async (
-    deleteParams: deleteParams,
-    transactionId: string
-  ) => {
-    setDeleteLoading(true);    
-    try {
-      // Call deleteTransactions with the transactionId
-      await deleteTransactions(
-        deleteParams.whoPaid,
-        deleteParams.whoReceived,
-        deleteParams.amount,
-        transactionId // Pass the transaction ID
-      );
-
-      // Immediately update the local state (userDetails) after deletion
-      setUserDetails((prevDetails) => {
-        if (!prevDetails) return null;
-
-        const updatedTransactionsToReceive =
-          prevDetails.transactionsToReceive.filter(
-            (transaction) =>
-              !(
-                transaction.fromUser === deleteParams.whoPaid &&
-                transaction.amountToReceive === deleteParams.amount
-              )
-          );
-
-        const newToReceive = updatedTransactionsToReceive
-          .reduce(
-            (sum, transaction) =>
-              sum + parseFloat(transaction.amountToReceive.toString()),
-            0
-          )
-          .toFixed(2);
-
-        return {
-          ...prevDetails,
-          transactionsToReceive: updatedTransactionsToReceive,
-          toReceive: parseFloat(newToReceive),
-        };
-      });
-      setDeleteLoading(false);
-    } catch (error) {
-      setDeleteLoading(false);
-      console.error("Error deleting transaction:", error);
-    }
-  };
 
   return (
     <View className="h-screen w-screen bg-[#f6f6e9]">
@@ -200,9 +130,6 @@ export default function DynamicUserPage() {
             title="To Receive"
             transactions={userDetails.transactionsToReceive}
             color="green"
-            handleDeleteItem={handleDeleteItem}
-            deleteLoading={deleteLoading}
-            setDeleteLoading={setDeleteLoading}
           />
         </ScrollView>
       )}
@@ -210,15 +137,9 @@ export default function DynamicUserPage() {
   );
 }
 
-const Section = ({
-  title,
-  transactions,
-  color,
-  handleDeleteItem,
-  deleteLoading,
-}: any) => (
+const Section = ({ title, transactions, color }: any) => (
   <View
-    className="h-auto w-[90%] flex items-center justify-center mt-5 rounded-xl py-5 border-dotted border-primaryColor"
+    className="h-auto w-[90%] flex items-center justify-center mt-5 mb-5 rounded-xl py-5 border-dotted border-primaryColor"
     style={{ borderWidth: 1 }}
   >
     <Text className="text-2xl text-primaryColor font-semibold mb-5">
@@ -252,40 +173,7 @@ const Section = ({
           <View
             className="flex flex-row"
             style={{ marginRight: 20, padding: 5, gap: 10 }}
-          >
-            {title === "To Receive" && (
-              <Pressable
-                onPress={() =>
-                  handleDeleteItem(
-                    {
-                      whoPaid: transaction.fromUser,
-                      whoReceived: transaction.receiver,
-                      amount:
-                        transaction.amountToPay || transaction.amountToReceive,
-                    },
-                    transaction.transactionId
-                  )
-                }
-              >
-                <Text className="text-3xl">
-                  {deleteLoading ? (
-                    <ActivityIndicator
-                      // className="mt-2"
-                      size="large"
-                      color="#547bd4"
-                    />
-                  ) : (
-                    <MaterialIcons
-                      name="delete"
-                      style={{ padding: 20 }}
-                      size={30}
-                      color="#df2626"
-                    />
-                  )}
-                </Text>
-              </Pressable>
-            )}
-          </View>
+          ></View>
         </View>
       ))
     ) : (

@@ -54,8 +54,8 @@ export default function Form({ setModalVisible }: ModalProps) {
       .replace(/\//g, "-")}`;
 
     await postUserData("IndivdualTransactions", {
-      whoPaid: whoPaid,
-      amount: amount,
+      whoPaid: whoPaid || "",
+      amount: parseFloat(amount || "0"),
       selected: selected,
       transactionTimeStamp: transactionTimeStamp,
       calculated: false,
