@@ -1,50 +1,6 @@
 import { ref, set, get, update } from "firebase/database";
 import database from "../../firebaseConfig";
 
-// export const postUserData = async (
-//   whoPaid: string,
-//   amount: number,
-//   selected: string[]
-// ) => {
-//   try {
-//     const userData: any = {};
-//     const amountPerPerson = amount / selected.length;
-
-//     selected.forEach((user) => {
-//       if (!userData[user]) {
-//         userData[user] = {
-//           toReceiveFrom: {},
-//           toPayTo: {},
-//           totalToPay: 0,
-//           totalToReceive: 0,
-//         };
-//       }
-//       ;
-
-//       if (user === whoPaid) {
-//         userData[user].totalToReceive += amount - amountPerPerson; // Ankit's total to receive
-//         selected.forEach((otherUser) => {
-//           if (otherUser !== whoPaid) {
-//             userData[user].toReceiveFrom[otherUser] =
-//               (userData[user].toReceiveFrom[otherUser] || 0) + amountPerPerson;
-//           }
-//         });
-//       } else {
-//         userData[user].toPayTo[whoPaid] =
-//           (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
-//         userData[user].totalToPay =
-//           (userData[user].totalToPay || 0) + amountPerPerson;
-//       }
-//     });
-
-//     await set(ref(database, "Money"), userData);
-//     console.log("Data written successfully");
-//   } catch (error) {
-//     console.error("Error writing data:", error);
-//     throw error;
-//   }
-// };
-
 export const postUserData = async (
   whoPaid: any,
   amount: any,
