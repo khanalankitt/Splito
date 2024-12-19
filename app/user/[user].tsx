@@ -31,14 +31,14 @@ export default function DynamicUserPage() {
         const res = await getAllTransactions();
         if (res) {
           const currentUserDetails = res.users.find(
-            (detail) => detail.name === user
+            (detail:any) => detail.name === user
           );
           if (currentUserDetails) {
             setUserDetails({
               ...currentUserDetails,
               transactionsToPay: currentUserDetails.transactionsToPay
-                .filter((transaction) => transaction !== null)
-                .map((transaction) => ({
+                .filter((transaction:any) => transaction !== null)
+                .map((transaction:any) => ({
                   ...transaction,
                   amountToPay: Number(transaction.amountToPay),
                 })),
