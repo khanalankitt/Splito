@@ -17,18 +17,16 @@ interface ModalProps {
 }
 export default function Form({ setModalVisible }: ModalProps) {
   const [whoPaid, setWhoPaid] = useState<string>();
-  const [amount, setAmount] = useState<string>();
+  const [amount, setAmount] = useState<number>();
   const [selected, setSelected] = useState<string[]>([]);
   const [users, setUsers] = useState<{ name: any }[]>([]);
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchUsers = async () => {
       const res = await getUsers();
       const usersArray = Object.keys(res || {}).map((key) => ({
-        id: key,
-        name: res[key].name,
-        toPay: res[key].toPay,
-        toReceive: res[key].toReceive,
+        name: key,
       }));
       setUsers(usersArray);
     };
@@ -36,34 +34,15 @@ export default function Form({ setModalVisible }: ModalProps) {
   }, []);
 
   const handleSubmit = async () => {
-    if (whoPaid == "" || amount == "" || selected[0] == "") {
-      alert("All fields are compulsary!");
+    if (!whoPaid || !amount || selected.length === 0) {
+      alert(
+        "All fields are required! Please complete the form before submitting."
+      );
       return;
     }
     setLoading(true);
-    const transactionTimeStamp = `Transaction ${new Date()
-      .toLocaleString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: true,
-      })
-      .replace(/\//g, "-")}`;
-
-    await postUserData("IndivdualTransactions", {
-      whoPaid: whoPaid || "",
-      amount: parseFloat(amount || "0"),
-      selected: selected,
-      transactionTimeStamp: transactionTimeStamp,
-      calculated: false,
-    });
+    await postUserData(whoPaid, amount, selected);
     setLoading(false);
-    setWhoPaid("");
-    setAmount("");
-    setSelected([]);
     setModalVisible(false);
   };
 
@@ -108,9 +87,9 @@ export default function Form({ setModalVisible }: ModalProps) {
         <TextInput
           style={styles.amountInput}
           keyboardType="numeric"
-          value={amount}
+          value={amount?.toString()}
           placeholder="Rs."
-          onChangeText={(am) => setAmount(am)}
+          onChangeText={(am) => setAmount(parseFloat(am))}
         />
         <Text style={styles.whopaid}>Divide amongst?</Text>
         <MultiSelect

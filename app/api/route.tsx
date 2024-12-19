@@ -1,30 +1,100 @@
 import { ref, set, get, update } from "firebase/database";
 import database from "../../firebaseConfig";
 
-export const postUserData = async (userId: string, userData: object) => {
-  const dateAndTime = `Transaction ${new Date()
-    .toLocaleString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: true,
-    })
-    .replace(/\//g, "-")}`;
+// export const postUserData = async (
+//   whoPaid: string,
+//   amount: number,
+//   selected: string[]
+// ) => {
+//   try {
+//     const userData: any = {};
+//     const amountPerPerson = amount / selected.length;
 
+//     selected.forEach((user) => {
+//       if (!userData[user]) {
+//         userData[user] = {
+//           toReceiveFrom: {},
+//           toPayTo: {},
+//           totalToPay: 0,
+//           totalToReceive: 0,
+//         };
+//       }
+//       ;
+
+//       if (user === whoPaid) {
+//         userData[user].totalToReceive += amount - amountPerPerson; // Ankit's total to receive
+//         selected.forEach((otherUser) => {
+//           if (otherUser !== whoPaid) {
+//             userData[user].toReceiveFrom[otherUser] =
+//               (userData[user].toReceiveFrom[otherUser] || 0) + amountPerPerson;
+//           }
+//         });
+//       } else {
+//         userData[user].toPayTo[whoPaid] =
+//           (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
+//         userData[user].totalToPay =
+//           (userData[user].totalToPay || 0) + amountPerPerson;
+//       }
+//     });
+
+//     await set(ref(database, "Money"), userData);
+//     console.log("Data written successfully");
+//   } catch (error) {
+//     console.error("Error writing data:", error);
+//     throw error;
+//   }
+// };
+
+export const postUserData = async (
+  whoPaid: any,
+  amount: any,
+  selected: any
+) => {
   try {
-    await set(ref(database, `IndivdualTransactions/${dateAndTime}`), userData);
+    const snapshot = await get(ref(database, "Money"));
+    const existingData = snapshot.val() || {};
+
+    const userData = { ...existingData };
+    const amountPerPerson = amount / selected.length;
+    
+    selected.forEach((user: any) => {
+      if (!userData[user]) {
+        userData[user] = {
+          toReceiveFrom: {},
+          toPayTo: {},
+          totalToPay: 0,
+          totalToReceive: 0,
+        };
+      }
+
+      if (user === whoPaid) {
+        userData[user].totalToReceive += amount - amountPerPerson;
+        selected.forEach((otherUser: any) => {
+          if (otherUser !== whoPaid) {
+            userData[user].toReceiveFrom[otherUser] =
+              (userData[user].toReceiveFrom[otherUser] || 0) + amountPerPerson;
+          }
+        });
+      } else {
+        userData[user].toPayTo[whoPaid] =
+          (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
+        userData[user].totalToPay =
+          (userData[user].totalToPay || 0) + amountPerPerson;
+      }
+    });
+
+    // Write the updated data to the database
+    await set(ref(database, "Money"), userData);
+    console.log("Data written successfully");
   } catch (error) {
     console.error("Error writing data:", error);
     throw error;
   }
 };
 
-export const postUsers = async (userId: string, user: object) => {
+export const postUsers = async (userId: string, userName: string) => {
   try {
-    await set(ref(database, `Users/${userId}`), user);
+    await set(ref(database, `Users/${userId}`), userName);
   } catch (error) {
     console.error("Error writing data:", error);
     throw error;

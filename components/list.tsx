@@ -38,11 +38,7 @@ export default function List() {
       return;
     }
     setLoading(true);
-    await postUsers(`${newUser}`, {
-      name: newUser,
-      toPay: 0,
-      toReceive: 0,
-    });
+    await postUsers(`${newUser}`, newUser);
 
     setNewUser("");
     setTrigger(!trigger);
@@ -55,10 +51,7 @@ export default function List() {
       setLoading(true);
       const res = await getUsers();
       const usersArray = Object.keys(res || {}).map((key) => ({
-        id: key,
-        name: res[key].name,
-        toPay: res[key].toPay,
-        toReceive: res[key].toReceive,
+        name: key,
       }));
       setUsers(usersArray);
       setLoading(false);
