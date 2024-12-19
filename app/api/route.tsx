@@ -7,44 +7,6 @@ export const postUserData = async (
   selected: any
 ) => {
   try {
-    // const snapshot = await get(ref(database, "Money"));
-    // const existingData = snapshot.val() || {};
-    // const userData = { ...existingData };
-    // console.log(userData);
-
-    // const amountPerPerson = amount / selected.length;
-
-    // selected.forEach((user: any) => {
-    //   if (!userData[user]) {
-    //     userData[user] = {
-    //       toReceiveFrom: {},
-    //       toPayTo: {},
-    //       totalToPay: 0,
-    //       totalToReceive: 0,
-    //     };
-    //   }
-
-    //   if (user === whoPaid) {
-    //     userData[user].totalToReceive += amount - amountPerPerson;
-
-    //     selected.forEach((otherUser: any) => {
-    //       if (otherUser !== whoPaid) {
-    //         userData[user].toReceiveFrom[otherUser] =
-    //           (userData[user].toReceiveFrom[otherUser] || 0) + amountPerPerson;
-    //       }
-    //     });
-    //   } else {
-    //     userData[user].toPayTo[whoPaid] =
-    //       (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
-    //     userData[user].totalToPay += amountPerPerson;
-
-    //     if (!userData[user].toReceiveFrom) {
-    //       userData[user].toReceiveFrom = {};
-    //     }
-    //   }
-    // });
-
-    // await set(ref(database, "Money"), userData);
     const snapshot = await get(ref(database, "Money"));
     const existingData = snapshot.val() || {};
     const userData = { ...existingData };
