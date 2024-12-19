@@ -3,16 +3,54 @@ import database from "../../firebaseConfig";
 
 export const postUserData = async (
   whoPaid: any,
-  amount: any,
+  amount: number,
   selected: any
 ) => {
   try {
+    // const snapshot = await get(ref(database, "Money"));
+    // const existingData = snapshot.val() || {};
+    // const userData = { ...existingData };
+    // console.log(userData);
+
+    // const amountPerPerson = amount / selected.length;
+
+    // selected.forEach((user: any) => {
+    //   if (!userData[user]) {
+    //     userData[user] = {
+    //       toReceiveFrom: {},
+    //       toPayTo: {},
+    //       totalToPay: 0,
+    //       totalToReceive: 0,
+    //     };
+    //   }
+
+    //   if (user === whoPaid) {
+    //     userData[user].totalToReceive += amount - amountPerPerson;
+
+    //     selected.forEach((otherUser: any) => {
+    //       if (otherUser !== whoPaid) {
+    //         userData[user].toReceiveFrom[otherUser] =
+    //           (userData[user].toReceiveFrom[otherUser] || 0) + amountPerPerson;
+    //       }
+    //     });
+    //   } else {
+    //     userData[user].toPayTo[whoPaid] =
+    //       (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
+    //     userData[user].totalToPay += amountPerPerson;
+
+    //     if (!userData[user].toReceiveFrom) {
+    //       userData[user].toReceiveFrom = {};
+    //     }
+    //   }
+    // });
+
+    // await set(ref(database, "Money"), userData);
     const snapshot = await get(ref(database, "Money"));
     const existingData = snapshot.val() || {};
-
     const userData = { ...existingData };
+
     const amountPerPerson = amount / selected.length;
-    
+
     selected.forEach((user: any) => {
       if (!userData[user]) {
         userData[user] = {
@@ -22,24 +60,47 @@ export const postUserData = async (
           totalToReceive: 0,
         };
       }
+    });
 
+    selected.forEach((user: any) => {
       if (user === whoPaid) {
         userData[user].totalToReceive += amount - amountPerPerson;
+        //updating toReceiveFrom for payer
         selected.forEach((otherUser: any) => {
           if (otherUser !== whoPaid) {
             userData[user].toReceiveFrom[otherUser] =
               (userData[user].toReceiveFrom[otherUser] || 0) + amountPerPerson;
           }
         });
+        //updating toPayTo for payer
+        selected.forEach((otherUser: any) => {
+          if (otherUser !== whoPaid) {
+            userData[user].toPayTo[otherUser] =
+              (userData[user].toPayTo[otherUser] || 0) + 0;
+          }
+        });
       } else {
-        userData[user].toPayTo[whoPaid] =
-          (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
-        userData[user].totalToPay =
-          (userData[user].totalToPay || 0) + amountPerPerson;
+        userData[user].totalToPay += amountPerPerson;
+        //updating toPayTo for other users
+        selected.forEach((otherUser: any) => {
+          if (otherUser === whoPaid) {
+            userData[user].toPayTo[whoPaid] =
+              (userData[user].toPayTo[whoPaid] || 0) + amountPerPerson;
+          } else {
+            userData[user].toPayTo[whoPaid] =
+              (userData[user].toPayTo[whoPaid] || 0) + 0;
+          }
+        });
+        //updating toReceiveFrom for other users
+        selected.forEach((otherUser: any) => {
+          if (otherUser !== user) {
+            userData[user].toReceiveFrom[otherUser] =
+              (userData[user].toReceiveFrom[otherUser] || 0) + 0;
+          }
+        });
       }
     });
 
-    // Write the updated data to the database
     await set(ref(database, "Money"), userData);
     console.log("Data written successfully");
   } catch (error) {
