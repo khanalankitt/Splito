@@ -1,6 +1,12 @@
 import { ref, set, get, update } from "firebase/database";
 import database from "../../firebaseConfig";
 
+interface deleteDetails {
+  payer: string;
+  amount: any;
+  user: string;
+}
+
 export const postUserData = async (
   whoPaid: any,
   amount: number,
@@ -98,150 +104,35 @@ export const getUsers = async () => {
 export const getAllTransactions = async () => {
   try {
     const snapshot = await get(ref(database, "Money"));
-    console.log(snapshot.val());
-    
-    return snapshot.val()
+    // console.log(snapshot.val());
 
+    return snapshot.val();
   } catch (error) {
     console.error("Error fetching data", error);
     throw error;
   }
 };
 
-// export const getAllTransactions = async () => {
-//   try {
-//     const [transactionSnapshot, userSnapshot] = await Promise.all([
-//       get(ref(database, "IndivdualTransactions")),
-//       get(ref(database, "Users")),
-//     ]);
+export const deleteTransaction = async ({
+  payer,
+  amount,
+  user,
+}: deleteDetails) => {
+  const snapshot = await get(ref(database, "Money"));
+  const existingData = snapshot.val() || {};
+  const userData = { ...existingData };
 
-//     const transactions = transactionSnapshot.exists()
-//       ? transactionSnapshot.val()
-//       : {};
-//     const users = userSnapshot.exists() ? userSnapshot.val() : {};
+  userData[payer].totalToPay -= amount;
+  userData[user].totalToReceive -= amount;
 
-//     if (!transactions || !Object.keys(transactions).length || !users) {
-//       console.log("No transactions or users available");
-//       return { users: [] };
-//     }
+  //modify toPayTo for payer
+  userData[payer].toPayTo[user] -= amount;
 
-//     const batchUpdates: Record<string, any> = {};
+  //modify toReceiveFrom for user(receiver)
+  userData[user].toReceiveFrom[payer] -= amount;
+  console.log("Updating DB with new information.");
 
-//     // Process each transaction
-//     const updatedUsers = { ...users }; // Create a copy of users to update
-
-//     Object.entries(transactions).forEach(([key, transaction]: any) => {
-//       const { amount, selected, whoPaid } = transaction;
-//       const dividedAmount = (amount / selected.length).toFixed(2);
-
-//       batchUpdates[`IndivdualTransactions/${key}`] = {
-//         ...transaction,
-//         calculated: true,
-//       };
-
-//       selected.forEach((userId: string) => {
-//         const user = updatedUsers[userId] || {
-//           toPay: "0.00",
-//           toReceive: "0.00",
-//         };
-
-//         if (userId !== whoPaid) {
-//           const updatedToPay = (
-//             parseFloat(user.toPay || "0.00") + parseFloat(dividedAmount)
-//           ).toFixed(2);
-//           updatedUsers[userId].toPay = updatedToPay; // Update in memory
-//         } else {
-//           const updatedToReceive = (
-//             parseFloat(user.toReceive || "0.00") + parseFloat(amount)
-//           ).toFixed(2);
-//           updatedUsers[userId].toReceive = updatedToReceive; // Update in memory
-//         }
-//       });
-//     });
-
-//     // Perform batch updates in one go
-//     await update(ref(database), batchUpdates);
-
-//     // Generate result data in memory before returning
-//     const result = {
-//       users: Object.keys(updatedUsers).map((userId) => {
-//         const userTransactionsToPay = Object.values(transactions)
-//           .filter(
-//             (transaction: any) =>
-//               transaction.selected.includes(userId) &&
-//               transaction.whoPaid !== userId
-//           )
-//           .reduce((acc: any[], transaction: any) => {
-//             const amountToPay = (
-//               transaction.amount / transaction.selected.length
-//             ).toFixed(2);
-//             const existing = acc.find((t) => t.toUser === transaction.whoPaid);
-//             if (existing) {
-//               existing.amountToPay = (
-//                 parseFloat(existing.amountToPay) + parseFloat(amountToPay)
-//               ).toFixed(2);
-//             } else {
-//               acc.push({
-//                 transactionId: transaction.id,
-//                 amountToPay,
-//                 toUser: transaction.whoPaid,
-//               });
-//             }
-//             return acc;
-//           }, []);
-
-//         const userTransactionsToReceive = Object.values(transactions)
-//           .filter((transaction: any) => transaction.whoPaid === userId)
-//           .reduce((acc: any[], transaction: any) => {
-//             const amountToReceive = (
-//               transaction.amount / transaction.selected.length
-//             ).toFixed(2);
-//             transaction.selected
-//               .filter((item: string) => item !== userId)
-//               .forEach((fromUser: any) => {
-//                 const existing = acc.find((t) => t.fromUser === fromUser);
-//                 if (existing) {
-//                   existing.amountToReceive = (
-//                     parseFloat(existing.amountToReceive) +
-//                     parseFloat(amountToReceive)
-//                   ).toFixed(2);
-//                 } else {
-//                   acc.push({
-//                     transactionId: transaction.id,
-//                     amountToReceive,
-//                     fromUser,
-//                   });
-//                 }
-//               });
-//             return acc;
-//           }, []);
-
-//         const totalToPay = userTransactionsToPay
-//           .reduce(
-//             (sum, transaction) => sum + parseFloat(transaction.amountToPay),
-//             0
-//           )
-//           .toFixed(2);
-//         const totalToReceive = userTransactionsToReceive
-//           .reduce(
-//             (sum, transaction) => sum + parseFloat(transaction.amountToReceive),
-//             0
-//           )
-//           .toFixed(2);
-
-//         return {
-//           name: updatedUsers[userId]?.name || "Unknown",
-//           toPay: totalToPay,
-//           toReceive: totalToReceive,
-//           transactionsToPay: userTransactionsToPay,
-//           transactionsToReceive: userTransactionsToReceive,
-//         };
-//       }),
-//     };
-
-//     return result;
-//   } catch (error) {
-//     console.error("Error fetching transactions:", error);
-//     throw error;
-//   }
-// };
+  await set(ref(database, "Money"), userData);
+  console.log("Database update succesfull!");
+  return true;
+};

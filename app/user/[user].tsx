@@ -1,28 +1,26 @@
-import { View, Text, ScrollView, ActivityIndicator } from "react-native";
 import React, { useEffect, useState } from "react";
-import { useLocalSearchParams } from "expo-router";
-import { getAllTransactions } from "../api/route";
-
-interface UserDetails {
-  name: string;
-  toPay: number;
-  toReceive: number;
-  transactionsToPay: {
-    transactionId: string;
-    amountToPay: number;
-    toUser: string;
-  }[];
-  transactionsToReceive: {
-    transactionId: string;
-    amountToReceive: number;
-    fromUser: string;
-  }[];
-}
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Pressable,
+} from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { deleteTransaction, getAllTransactions } from "../api/route";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function DynamicUserPage() {
   const { user } = useLocalSearchParams();
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [userDetails, setUserDetails] = useState<any>({
+    toPayTo: {},
+    toReceiveFrom: {},
+    totalToPay: 0,
+    totalToReceive: 0,
+  });
   const [loading, setLoading] = useState<boolean>(true);
+  const [trigger, setTrigger] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,38 +28,58 @@ export default function DynamicUserPage() {
         setLoading(true);
         const res = await getAllTransactions();
         if (res) {
-          const currentUserDetails = res.users.find(
-            (detail:any) => detail.name === user
-          );
+          const currentUserDetails = res[String(user)];
           if (currentUserDetails) {
-            setUserDetails({
-              ...currentUserDetails,
-              transactionsToPay: currentUserDetails.transactionsToPay
-                .filter((transaction:any) => transaction !== null)
-                .map((transaction:any) => ({
-                  ...transaction,
-                  amountToPay: Number(transaction.amountToPay),
-                })),
-            });
+            setUserDetails(currentUserDetails);
           } else {
-            setUserDetails(null);
+            setUserDetails({
+              toPayTo: {},
+              toReceiveFrom: {},
+              totalToPay: 0,
+              totalToReceive: 0,
+            });
           }
         } else {
-          setUserDetails(null);
+          setUserDetails({
+            toPayTo: {},
+            toReceiveFrom: {},
+            totalToPay: 0,
+            totalToReceive: 0,
+          });
         }
       } catch (error) {
         console.error("Error fetching transactions:", error);
-        setUserDetails(null);
+        setUserDetails({
+          toPayTo: {},
+          toReceiveFrom: {},
+          totalToPay: 0,
+          totalToReceive: 0,
+        });
       } finally {
         setLoading(false);
       }
     };
+
     fetchData();
-  }, [user]);
+  }, [user, trigger]);
+
+  const handleDelete = async (payer: string, amount: any) => {
+    setLoading(true);
+    const details: any = { payer, amount, user };
+    await deleteTransaction(details);
+    setLoading(false);
+    setTrigger(!trigger);
+  };
 
   return (
     <View className="h-screen w-screen bg-[#f6f6e9]">
-      <View className="h-24 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px]">
+      <View className="h-24 w-full flex items-center flex-row justify-center bg-[#547bd4] rounded-b-[50px]">
+        <Text
+          className="text-5xl text-white font-bold absolute left-10"
+          onPress={() => router.back()}
+        >
+          ←
+        </Text>
         <Text className="text-4xl font-bold text-white text-center">
           {user}
         </Text>
@@ -83,17 +101,17 @@ export default function DynamicUserPage() {
                 size="large"
                 color="#547bd4"
               />
-            ) : !userDetails ? (
-              <Text className="text-xl mt-4 font-bold text-gray-600">
-                No Transactions
-              </Text>
             ) : (
               <>
                 <Text className="text-xl font-bold text-red-600">
-                  रु. {userDetails.toPay}
+                  रु.{" "}
+                  {Math.abs(parseFloat(userDetails.totalToPay || 0)).toFixed(2)}
                 </Text>
                 <Text className="text-xl font-bold text-green-600">
-                  रु. {userDetails.toReceive}
+                  रु.{" "}
+                  {Math.abs(
+                    parseFloat(userDetails.totalToReceive || 0)
+                  ).toFixed(2)}
                 </Text>
               </>
             )}
@@ -105,10 +123,11 @@ export default function DynamicUserPage() {
         <View className="flex-1 flex items-center justify-center">
           <ActivityIndicator size="large" color="#547bd4" />
         </View>
-      ) : !userDetails ? (
+      ) : Object.keys(userDetails.toPayTo || {}).length === 0 &&
+        Object.keys(userDetails.toReceiveFrom || {}).length === 0 ? (
         <View className="flex-1 flex items-center justify-center">
           <Text className="text-xl font-bold text-gray-600">
-            No Transactions
+            No Transactions Found
           </Text>
         </View>
       ) : (
@@ -123,13 +142,15 @@ export default function DynamicUserPage() {
         >
           <Section
             title="To Pay"
-            transactions={userDetails.transactionsToPay}
+            transactions={userDetails.toPayTo || {}}
             color="red"
+            handleDelete={handleDelete}
           />
           <Section
             title="To Receive"
-            transactions={userDetails.transactionsToReceive}
+            transactions={userDetails.toReceiveFrom || {}}
             color="green"
+            handleDelete={handleDelete}
           />
         </ScrollView>
       )}
@@ -137,49 +158,74 @@ export default function DynamicUserPage() {
   );
 }
 
-const Section = ({ title, transactions, color }: any) => (
-  <View
-    className="h-auto w-[90%] flex items-center justify-center mt-5 mb-5 rounded-xl py-5 border-dotted border-primaryColor"
-    style={{ borderWidth: 1 }}
-  >
-    <Text className="text-2xl text-primaryColor font-semibold mb-5">
-      {title}
-    </Text>
-    {transactions.length > 0 ? (
-      transactions.map((transaction: any, index: number) => (
-        <View
-          key={index}
-          style={{
-            height: "auto",
-            paddingVertical: 10,
-            backgroundColor: "#fefeff",
-            marginBottom: 10,
-            borderWidth: 1,
-            display: "flex",
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-          className="w-[90%] rounded-lg border-gray-300 items-start"
-        >
-          <View>
-            <Text className="text-xl ml-5 font-bold">
-              {transaction.toUser || transaction.fromUser}
-            </Text>
-            <Text className={`text-2xl font-bold text-${color}-600 ml-5`}>
-              रु. {transaction.amountToPay || transaction.amountToReceive}
-            </Text>
-          </View>
-          <View
-            className="flex flex-row"
-            style={{ marginRight: 20, padding: 5, gap: 10 }}
-          ></View>
-        </View>
-      ))
-    ) : (
-      <Text className="text-xl font-bold text-gray-600 mt-5">
-        No transactions found.
+const Section = ({
+  title,
+  transactions = {},
+  color,
+  handleDelete,
+}: {
+  title: string;
+  transactions: { [key: string]: number };
+  color: string;
+  handleDelete: any;
+}) => {
+  const filteredTransactions = Object.entries(transactions).filter(
+    ([_, amount]) => amount > 0
+  );
+
+  return (
+    <View
+      className="h-auto w-[90%] flex items-center justify-center mt-5 mb-5 rounded-xl py-5 border-dotted border-primaryColor"
+      style={{ borderWidth: 1 }}
+    >
+      <Text className="text-2xl text-primaryColor font-semibold mb-5">
+        {title}
       </Text>
-    )}
-  </View>
-);
+
+      {filteredTransactions.length > 0 ? (
+        filteredTransactions.map(([name, amount], index) => (
+          <View
+            key={index}
+            style={{
+              height: "auto",
+              paddingVertical: 10,
+              backgroundColor: "#fefeff",
+              marginBottom: 10,
+              borderWidth: 1,
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+            className="w-[90%] rounded-lg border-gray-300 items-start"
+          >
+            <View>
+              <Text className="text-xl ml-5 font-bold">{name}</Text>
+
+              <Text
+                style={{ color: color === "red" ? "#dc2626" : "#16a34a" }}
+                className="text-2xl font-bold ml-5"
+              >
+                रु. {Math.abs(parseFloat(amount.toString())).toFixed(2)}
+              </Text>
+            </View>
+            {title === "To Receive" && (
+              <Pressable
+                style={{ marginRight: 15 }}
+                onPress={() => handleDelete(name, amount)}
+              >
+                <Text className="text-5xl">
+                  <MaterialIcons name="delete" size={30} color="#df2626" />
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        ))
+      ) : (
+        <Text className="text-xl font-bold text-gray-600 mt-5">
+          No transactions found.
+        </Text>
+      )}
+    </View>
+  );
+};

@@ -89,7 +89,7 @@ export default function Form({ setModalVisible }: ModalProps) {
           keyboardType="numeric"
           value={amount?.toString()}
           placeholder="Rs."
-          onChangeText={(am) => setAmount(parseFloat(am))}
+          onChangeText={(am) => setAmount(am ? parseFloat(am) : undefined)}
         />
         <Text style={styles.whopaid}>Divide amongst?</Text>
         <MultiSelect

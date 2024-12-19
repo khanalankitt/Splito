@@ -7,6 +7,7 @@ import {
   TextInput,
   View,
   ActivityIndicator,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
@@ -15,12 +16,15 @@ import { postUsers, getUsers } from "@/app/api/route";
 interface User {
   name: string;
 }
+
 export default function List() {
   const [newUser, setNewUser] = useState<string>();
   const [users, setUsers] = useState<User[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [trigger, setTrigger] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   const ListEmptyComponent = () => (
     <Text style={{ marginTop: 100 }} className="text-center text-xl">
@@ -46,18 +50,25 @@ export default function List() {
     setModalVisible(!modalVisible);
   };
 
+  const fetchUsers = async () => {
+    setLoading(true);
+    const res = await getUsers();
+    const usersArray = Object.keys(res || {}).map((key) => ({
+      name: key,
+    }));
+    setUsers(usersArray);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      const res = await getUsers();
-      const usersArray = Object.keys(res || {}).map((key) => ({
-        name: key,
-      }));
-      setUsers(usersArray);
-      setLoading(false);
-    };
     fetchUsers();
   }, [trigger]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchUsers();
+    setRefreshing(false);
+  };
 
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
@@ -98,6 +109,9 @@ export default function List() {
             </Link>
           )}
           ItemSeparatorComponent={SeperatorComponent}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         />
       )}
       <Modal
@@ -142,9 +156,11 @@ export default function List() {
     </View>
   );
 }
+
 interface dataTypes {
   name: string;
 }
+
 const MoneyItem = ({ name }: dataTypes) => {
   return (
     <View style={styles.details}>
