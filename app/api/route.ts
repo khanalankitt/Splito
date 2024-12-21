@@ -1,5 +1,5 @@
 import { ref, set, get } from "firebase/database";
-import database from '../firebaseConfig.js';
+import database from '../../firebaseConfig.js'
 
 interface deleteDetails {
   payer: string;

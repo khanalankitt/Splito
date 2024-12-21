@@ -8,7 +8,7 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { deleteTransaction, getAllTransactions } from "../../api/route"
+import { deleteTransaction, getAllTransactions } from "../api/route";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function DynamicUserPage() {

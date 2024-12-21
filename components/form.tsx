@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-import { getUsers, postUserData } from "../api/route"
+import { getUsers, postUserData } from "../app/api/route";
 
 interface ModalProps {
   setModalVisible: (visible: boolean) => void;

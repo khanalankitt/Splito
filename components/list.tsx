@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
-import { postUsers, getUsers } from "../api/route"
+import { postUsers, getUsers } from "../app/api/route";
 
 interface User {
   name: string;
