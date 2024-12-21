@@ -5,9 +5,10 @@ import {
   ScrollView,
   ActivityIndicator,
   Pressable,
+  StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { deleteTransaction, getAllTransactions } from "../api/route";
+import { deleteTransaction, getAllTransactions } from "../../api/route"
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function DynamicUserPage() {
@@ -70,44 +71,36 @@ export default function DynamicUserPage() {
     setLoading(false);
     setTrigger(!trigger);
   };
-
   return (
-    <View className="h-screen w-screen bg-[#f6f6e9]">
-      <View className="h-24 w-full flex items-center flex-row justify-center bg-[#547bd4] rounded-b-[50px]">
-        <Text
-          className="text-5xl text-white font-bold absolute left-10"
-          onPress={() => router.back()}
-        >
+    <View style={{ height: "100%", width: "100%", backgroundColor: "#f6f6e9" }}>
+      <View style={styles.top}>
+        <Text style={styles.userName} onPress={() => router.back()}>
           ←
         </Text>
-        <Text className="text-4xl font-bold text-white text-center">
-          {user}
-        </Text>
+        <Text style={styles.userTitle}>{user}</Text>
       </View>
 
-      <View className="h-auto w-[100%] flex items-center justify-center mt-5 pb-5">
-        <Text className="text-left w-[90%] text-2xl mb-1 text-primaryColor font-semibold">
-          Total
-        </Text>
-        <View className="border-2 border-gray-400 mt-2 border-dashed w-[90%] flex-row justify-between p-5 rounded-lg">
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalTitle}>Total</Text>
+        <View style={styles.totalBox}>
           <View>
-            <Text className="text-xl font-bold text-red-600">To Pay</Text>
-            <Text className="text-xl font-bold text-green-600">To Receive</Text>
+            <Text style={styles.toPayText}>To Pay</Text>
+            <Text style={styles.toReceiveText}>To Receive</Text>
           </View>
           <View>
             {loading ? (
               <ActivityIndicator
-                className="mt-2"
+                style={styles.activityIndicator}
                 size="large"
                 color="#547bd4"
               />
             ) : (
               <>
-                <Text className="text-xl font-bold text-red-600">
+                <Text style={styles.toPayAmount}>
                   रु.{" "}
                   {Math.abs(parseFloat(userDetails.totalToPay || 0)).toFixed(2)}
                 </Text>
-                <Text className="text-xl font-bold text-green-600">
+                <Text style={styles.toReceiveAmount}>
                   रु.{" "}
                   {Math.abs(
                     parseFloat(userDetails.totalToReceive || 0)
@@ -120,25 +113,19 @@ export default function DynamicUserPage() {
       </View>
 
       {loading ? (
-        <View className="flex-1 flex items-center justify-center">
+        <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#547bd4" />
         </View>
       ) : Object.keys(userDetails.toPayTo || {}).length === 0 &&
         Object.keys(userDetails.toReceiveFrom || {}).length === 0 ? (
-        <View className="flex-1 flex items-center justify-center">
-          <Text className="text-xl font-bold text-gray-600">
-            No Transactions Found
-          </Text>
+        <View style={styles.noTransactionsContainer}>
+          <Text style={styles.noTransactionsText}>No Transactions Found</Text>
         </View>
       ) : (
         <ScrollView
           scrollEnabled
-          contentContainerStyle={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-          className="w-[100%] "
+          contentContainerStyle={styles.scrollViewContent}
+          style={styles.scrollView}
         >
           <Section
             title="To Pay"
@@ -174,47 +161,30 @@ const Section = ({
   );
 
   return (
-    <View
-      className="h-auto w-[90%] flex items-center justify-center mt-5 mb-5 rounded-xl py-5 border-dotted border-primaryColor"
-      style={{ borderWidth: 1 }}
-    >
-      <Text className="text-2xl text-primaryColor font-semibold mb-5">
-        {title}
-      </Text>
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>{title}</Text>
 
       {filteredTransactions.length > 0 ? (
         filteredTransactions.map(([name, amount], index) => (
-          <View
-            key={index}
-            style={{
-              height: "auto",
-              paddingVertical: 10,
-              backgroundColor: "#fefeff",
-              marginBottom: 10,
-              borderWidth: 1,
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-            className="w-[90%] rounded-lg border-gray-300 items-start"
-          >
+          <View key={index} style={styles.transactionContainer}>
             <View>
-              <Text className="text-xl ml-5 font-bold">{name}</Text>
+              <Text style={styles.transactionName}>{name}</Text>
 
               <Text
-                style={{ color: color === "red" ? "#dc2626" : "#16a34a" }}
-                className="text-2xl font-bold ml-5"
+                style={{
+                  ...styles.transactionAmount,
+                  color: color === "red" ? "#dc2626" : "#16a34a",
+                }}
               >
                 रु. {Math.abs(parseFloat(amount.toString())).toFixed(2)}
               </Text>
             </View>
             {title === "To Receive" && (
               <Pressable
-                style={{ marginRight: 15 }}
+                style={styles.deleteButton}
                 onPress={() => handleDelete(name, amount)}
               >
-                <Text className="text-5xl">
+                <Text style={styles.deleteIcon}>
                   <MaterialIcons name="delete" size={30} color="#df2626" />
                 </Text>
               </Pressable>
@@ -222,10 +192,156 @@ const Section = ({
           </View>
         ))
       ) : (
-        <Text className="text-xl font-bold text-gray-600 mt-5">
-          No transactions found.
-        </Text>
+        <Text style={styles.noTransactionsText}>No transactions found.</Text>
       )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  top: {
+    height: 96,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#547bd4",
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 50,
+  },
+  userName: {
+    fontSize: 40,
+    color: "white",
+    fontWeight: "bold",
+    position: "absolute",
+    left: 40,
+    top: 10,
+  },
+  userTitle: {
+    fontSize: 32,
+    fontWeight: "bold",
+    color: "white",
+    textAlign: "center",
+  },
+  totalContainer: {
+    height: "auto",
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    paddingBottom: 20,
+  },
+  totalTitle: {
+    textAlign: "left",
+    width: "90%",
+    fontSize: 22,
+    marginBottom: 5,
+    color: "#1f2937",
+    fontWeight: "600",
+  },
+  totalBox: {
+    borderWidth: 2,
+    borderColor: "#9ca3af",
+    marginTop: 8,
+    borderStyle: "dashed",
+    width: "90%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    padding: 15,
+    borderRadius: 10,
+  },
+  toPayText: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#dc2626",
+  },
+  toReceiveText: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#16a34a",
+  },
+  activityIndicator: {
+    marginTop: 8,
+  },
+  toPayAmount: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#dc2626",
+  },
+  toReceiveAmount: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#16a34a",
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noTransactionsContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  noTransactionsText: {
+    fontSize: 17,
+    fontWeight: "bold",
+    color: "#4b5563",
+  },
+  scrollViewContent: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scrollView: {
+    width: "100%",
+  },
+  sectionContainer: {
+    height: "auto",
+    width: "90%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    marginBottom: 20,
+    paddingVertical: 15,
+    borderStyle: "dotted",
+    borderColor: "#1f2937",
+    borderWidth: 1,
+    borderRadius: 10,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    color: "#1f2937",
+    fontWeight: "600",
+    marginBottom: 20,
+  },
+  transactionContainer: {
+    height: "auto",
+    paddingVertical: 7,
+    backgroundColor: "#fefeff",
+    marginBottom: 10,
+    borderWidth: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "90%",
+    borderRadius: 10,
+    borderColor: "#d1d5db",
+  },
+  transactionName: {
+    fontSize: 17,
+    marginLeft: 20,
+    fontWeight: "bold",
+  },
+  transactionAmount: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginLeft: 20,
+  },
+  deleteButton: {
+    marginRight: 15,
+  },
+  deleteIcon: {
+    fontSize: 40,
+  },
+});

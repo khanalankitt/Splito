@@ -19,9 +19,7 @@ export default function Nav() {
     <>
       <View style={styles.nav}>
         <StatusBar backgroundColor="#547bd4" barStyle="default" />
-        <Text style={styles.text} className="text-center">
-          Splito
-        </Text>
+        <Text style={[styles.text, styles.textCenter]}>Splito</Text>
         <Modal
           visible={modalVisible}
           animationType="slide" //or fade
@@ -29,7 +27,14 @@ export default function Nav() {
         >
           <View style={styles.pressableContainer}>
             <Pressable onPress={handleModal}>
-              <Text className="text-5xl text-white font-bold text-left">
+              <Text
+                style={[
+                  styles.text5xl,
+                  styles.textWhite,
+                  styles.fontBold,
+                  styles.textLeft,
+                ]}
+              >
                 {" ←"}
               </Text>
             </Pressable>
@@ -37,8 +42,15 @@ export default function Nav() {
           <Form setModalVisible={setModalVisible} />
         </Modal>
       </View>
-      <View className="h-16 w-full flex items-center justify-center bg-[#547bd4] rounded-b-[50px] ">
-        <Text className="text-lg font-semibold -mt-6 text-white">
+      <View style={styles.bottomBarContainer}>
+        <Text
+          style={[
+            styles.textLg,
+            styles.fontSemibold,
+            styles.textWhite,
+            styles.negativeMarginTop,
+          ]}
+        >
           Split bills like nobody
         </Text>
       </View>
@@ -56,6 +68,30 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingLeft: 10,
     color: "white",
+  },
+  textCenter: {
+    textAlign: "center",
+  },
+  text5xl: {
+    fontSize: 40,
+  },
+  textWhite: {
+    color: "white",
+  },
+  fontBold: {
+    fontWeight: "bold",
+  },
+  textLeft: {
+    textAlign: "left",
+  },
+  textLg: {
+    fontSize: 16,
+  },
+  fontSemibold: {
+    fontWeight: "600",
+  },
+  negativeMarginTop: {
+    marginTop: -24,
   },
   button: {
     height: 35,
@@ -86,5 +122,15 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
     paddingHorizontal: 5,
+  },
+  bottomBarContainer: {
+    height: 64,
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#547bd4",
+    borderBottomLeftRadius: 50,
+    borderBottomRightRadius: 50,
   },
 });

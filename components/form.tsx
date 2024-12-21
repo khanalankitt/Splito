@@ -8,13 +8,14 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { postUserData } from "@/app/api/route";
 import React, { useEffect, useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-import { getUsers } from "@/app/api/route";
+import { getUsers, postUserData } from "../api/route"
+
 interface ModalProps {
   setModalVisible: (visible: boolean) => void;
 }
+
 export default function Form({ setModalVisible }: ModalProps) {
   const [whoPaid, setWhoPaid] = useState<string>();
   const [amount, setAmount] = useState<number>();
@@ -64,16 +65,14 @@ export default function Form({ setModalVisible }: ModalProps) {
       </TouchableOpacity>
     );
   };
+
   return (
     <ScrollView>
       <View style={styles.form}>
-        <Text
-          style={styles.formTitle}
-          className="text-primaryColor font-bold text-4xl w-full "
-        >
+        <Text style={[styles.formTitle, styles.textPrimaryColor]}>
           Add Payment Details
         </Text>
-        <Text className="font-bold text-xl w-[90%]">Who paid?</Text>
+        <Text style={styles.fontBoldTextXL}>Who paid?</Text>
         <Dropdown
           style={styles.dropdownn}
           data={users}
@@ -116,13 +115,11 @@ export default function Form({ setModalVisible }: ModalProps) {
         />
         <Pressable onPress={handleSubmit}>
           {loading ? (
-            <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
+            <View style={styles.loadingButton}>
               <ActivityIndicator size="large" color="white" />
-            </Text>
+            </View>
           ) : (
-            <Text className="font-bold text-2xl bg-[#547bd4] px-12 rounded-lg py-2 mt-2 text-white">
-              Save Payment
-            </Text>
+            <Text style={styles.saveButton}>Save Payment</Text>
           )}
         </Pressable>
       </View>
@@ -147,9 +144,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginHorizontal: "auto",
     fontWeight: "bold",
-    padding: 5,
-    paddingHorizontal: 10,
+    fontSize: 27,
+    width: "100%",
+    paddingVertical: 5,
     borderRadius: 10,
+  },
+  textPrimaryColor: {
+    color: "#547bd4",
+  },
+  fontBoldTextXL: {
+    fontWeight: "bold",
+    fontSize: 20,
+    width: "90%",
   },
   dropdownn: {
     height: 50,
@@ -213,5 +219,25 @@ const styles = StyleSheet.create({
   textSelectedStyle: {
     marginRight: 5,
     fontSize: 16,
+  },
+  loadingButton: {
+    fontWeight: "bold",
+    fontSize: 24,
+    backgroundColor: "#547bd4",
+    paddingHorizontal: 48,
+    borderRadius: 10,
+    paddingVertical: 8,
+    marginTop: 8,
+    color: "white",
+  },
+  saveButton: {
+    fontWeight: "bold",
+    fontSize: 20,
+    backgroundColor: "#547bd4",
+    paddingHorizontal: 40,
+    borderRadius: 10,
+    paddingVertical: 8,
+    marginTop: 8,
+    color: "white",
   },
 });

@@ -11,7 +11,7 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
-import { postUsers, getUsers } from "@/app/api/route";
+import { postUsers, getUsers } from "../api/route"
 
 interface User {
   name: string;
@@ -27,7 +27,7 @@ export default function List() {
 
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   const ListEmptyComponent = () => (
-    <Text style={{ marginTop: 100 }} className="text-center text-xl">
+    <Text style={[styles.textCenter, styles.textXL, { marginTop: 100 }]}>
       Add users to start
     </Text>
   );
@@ -72,13 +72,27 @@ export default function List() {
 
   return (
     <View style={[styles.listContainer, { flex: 0 }]}>
-      <View className=" h-auto flex flex-row justify-between w-[100%] ">
-        <Text className="text-4xl mt-2 font-bold text-primaryColor">Users</Text>
-        <Pressable
-          className="h-auto w-auto flex items-center justify-center"
-          onPress={handleModal}
+      <View style={[styles.flexRow, styles.justifyBetween, styles.fullWidth]}>
+        <Text
+          style={[
+            styles.text4XL,
+            styles.mt2,
+            styles.fontBold,
+            styles.textPrimaryColor,
+          ]}
         >
-          <Text className="bg-primaryColor text-white p-3 font-bold rounded-lg">
+          Users
+        </Text>
+        <Pressable style={[styles.flexCenter]} onPress={handleModal}>
+          <Text
+            style={[
+              styles.bgPrimaryColor,
+              styles.textWhite,
+              styles.p3,
+              styles.fontBold,
+              styles.roundedLg,
+            ]}
+          >
             Add User
           </Text>
         </Pressable>
@@ -93,7 +107,7 @@ export default function List() {
         <FlatList
           scrollEnabled
           data={users}
-          className="mt-5 h-[70%]"
+          style={[styles.mt5, { height: "70%" }]}
           ListEmptyComponent={<ListEmptyComponent />}
           renderItem={({ item }) => (
             <Link
@@ -121,27 +135,54 @@ export default function List() {
       >
         <View style={styles.pressableContainer}>
           <Pressable onPress={handleModal}>
-            <Text className="text-5xl text-white font-bold text-left">
+            <Text
+              style={[
+                styles.text5XL,
+                styles.textWhite,
+                styles.fontBold,
+                styles.textLeft,
+              ]}
+            >
               {" ←"}
             </Text>
           </Pressable>
         </View>
-        <View className="w-full items-center justify-center">
-          <Text className="text-3xl mt-5 font-bold text-primaryColor text-center">
+        <View
+          style={[styles.fullWidth, styles.itemsCenter, styles.justifyCenter]}
+        >
+          <Text
+            style={[
+              styles.text3XL,
+              styles.mt5,
+              styles.fontBold,
+              styles.textPrimaryColor,
+              styles.textCenter,
+            ]}
+          >
             Add New User
           </Text>
           <TextInput
             value={newUser}
             onChangeText={(text) => setNewUser(text)}
             placeholder="Username"
-            className="h-16 border-2 mt-5 border-gray-400 w-[90%] rounded-md px-2 py-0 font-semibold text-xl"
+            style={[
+              styles.h16,
+              styles.border2,
+              styles.mt5,
+              styles.borderGray400,
+              styles.fullWidth90,
+              styles.roundedMd,
+              styles.px2,
+              styles.py0,
+              styles.fontSemibold,
+              styles.textXL,
+            ]}
           />
           <Pressable
-            style={styles.add}
-            className="bg-primaryColor rounded-lg "
+            style={[styles.add, styles.bgPrimaryColor, styles.roundedLg]}
             onPress={handleAddNewUser}
           >
-            <Text className="text-2xl text-white font-bold">
+            <Text style={[styles.text2XL, styles.textWhite, styles.fontBold]}>
               {loading ? (
                 <Text>
                   <ActivityIndicator size="large" color="white" />
@@ -166,8 +207,12 @@ const MoneyItem = ({ name }: dataTypes) => {
     <View style={styles.details}>
       <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
       <Text
-        style={{ opacity: 0.5, textDecorationLine: "underline" }}
-        className="font-semibold text-md"
+        style={[
+          styles.opacity50,
+          styles.textUnderline,
+          styles.fontSemibold,
+          styles.textMd,
+        ]}
       >
         More Details→
       </Text>
@@ -220,5 +265,102 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     justifyContent: "center",
     paddingHorizontal: 5,
+  },
+  textCenter: {
+    textAlign: "center",
+  },
+  textXL: {
+    fontSize: 20,
+  },
+  flexRow: {
+    flexDirection: "row",
+  },
+  justifyBetween: {
+    justifyContent: "space-between",
+  },
+  fullWidth: {
+    width: "100%",
+  },
+  text4XL: {
+    fontSize: 32,
+  },
+  mt2: {
+    marginTop: 8,
+  },
+  fontBold: {
+    fontWeight: "bold",
+  },
+  textPrimaryColor: {
+    color: "#547bd4",
+  },
+  flexCenter: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  bgPrimaryColor: {
+    backgroundColor: "#547bd4",
+  },
+  textWhite: {
+    color: "white",
+  },
+  p3: {
+    padding: 12,
+  },
+  roundedLg: {
+    borderRadius: 8,
+  },
+  mt5: {
+    marginTop: 20,
+  },
+  text5XL: {
+    fontSize: 40,
+  },
+  textLeft: {
+    textAlign: "left",
+  },
+  itemsCenter: {
+    alignItems: "center",
+  },
+  justifyCenter: {
+    justifyContent: "center",
+  },
+  text3XL: {
+    fontSize: 24,
+  },
+  fullWidth90: {
+    width: "90%",
+  },
+  h16: {
+    height: 64,
+  },
+  border2: {
+    borderWidth: 2,
+  },
+  borderGray400: {
+    borderColor: "#ccc",
+  },
+  roundedMd: {
+    borderRadius: 4,
+  },
+  px2: {
+    paddingHorizontal: 8,
+  },
+  py0: {
+    paddingVertical: 0,
+  },
+  fontSemibold: {
+    fontWeight: "600",
+  },
+  text2XL: {
+    fontSize: 24,
+  },
+  opacity50: {
+    opacity: 0.5,
+  },
+  textUnderline: {
+    textDecorationLine: "underline",
+  },
+  textMd: {
+    fontSize: 14,
   },
 });
