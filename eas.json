@@ -6,25 +6,16 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal",
-      "hooks": {
-        "pre-install": "echo 'Using legacy-peer-deps' && npm ci --legacy-peer-deps"
-      }
+      "distribution": "internal"
     },
     "preview": {
       "distribution": "internal",
       "android": {
         "buildType": "apk"
-      },
-      "hooks": {
-        "pre-install": "echo 'Using legacy-peer-deps' && npm ci --legacy-peer-deps"
       }
     },
     "production": {
-      "autoIncrement": true,
-      "hooks": {
-        "pre-install": "echo 'Using legacy-peer-deps' && npm ci --legacy-peer-deps"
-      }
+      "autoIncrement": true
     }
   },
   "submit": {
