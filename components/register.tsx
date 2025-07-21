@@ -68,7 +68,7 @@ export default function Register() {
         placeholder="Enter your username"
         placeholderTextColor={colors.textSecondary}
         value={username}
-        onChangeText={setUsername}
+        onChangeText={(text) => setUsername(text.trim())}
       />
       <Text style={{ alignSelf: "flex-start", marginBottom: 5, color: colors.text }}>Password</Text>
       <TextInput
