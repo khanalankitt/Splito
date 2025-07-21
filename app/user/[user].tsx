@@ -8,11 +8,13 @@ import {
   StyleSheet,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { deleteTransaction, getAllTransactions } from "../api/route";
+import { deleteTransaction, getAllTransactions } from "../../utils/api";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function DynamicUserPage() {
   const { user } = useLocalSearchParams();
+  const { userName } = useAuth();
   const [userDetails, setUserDetails] = useState<any>({
     toPayTo: {},
     toReceiveFrom: {},
@@ -29,9 +31,30 @@ export default function DynamicUserPage() {
         setLoading(true);
         const res = await getAllTransactions();
         if (res) {
-          const currentUserDetails = res[String(user)];
-          if (currentUserDetails) {
-            setUserDetails(currentUserDetails);
+          const selectedUserDetails = res[String(user).trim()];
+
+          if (selectedUserDetails && userName) {
+            // Filter transactions to show only those related to the logged-in user
+            const filteredDetails = {
+              toPayTo: {} as { [key: string]: number },
+              toReceiveFrom: {} as { [key: string]: number },
+              totalToPay: 0,
+              totalToReceive: 0,
+            };
+
+            // Filter toPayTo - only show if the selected user owes money to the logged-in user
+            if (selectedUserDetails.toPayTo && selectedUserDetails.toPayTo[userName]) {
+              filteredDetails.toPayTo[userName] = selectedUserDetails.toPayTo[userName];
+              filteredDetails.totalToPay = selectedUserDetails.toPayTo[userName];
+            }
+
+            // Filter toReceiveFrom - only show if the selected user should receive money from the logged-in user
+            if (selectedUserDetails.toReceiveFrom && selectedUserDetails.toReceiveFrom[userName]) {
+              filteredDetails.toReceiveFrom[userName] = selectedUserDetails.toReceiveFrom[userName];
+              filteredDetails.totalToReceive = selectedUserDetails.toReceiveFrom[userName];
+            }
+
+            setUserDetails(filteredDetails);
           } else {
             setUserDetails({
               toPayTo: {},
@@ -62,7 +85,7 @@ export default function DynamicUserPage() {
     };
 
     fetchData();
-  }, [user, trigger]);
+  }, [user, trigger, userName]);
 
   const handleDelete = async (payer: string, amount: any) => {
     setLoading(true);
@@ -84,8 +107,8 @@ export default function DynamicUserPage() {
         <Text style={styles.totalTitle}>Total</Text>
         <View style={styles.totalBox}>
           <View>
-            <Text style={styles.toPayText}>To Pay</Text>
-            <Text style={styles.toReceiveText}>To Receive</Text>
+            <Text style={styles.toReceiveText}>You will receive</Text>
+            <Text style={styles.toPayText}>You owe</Text>
           </View>
           <View>
             {loading ? (
@@ -96,11 +119,11 @@ export default function DynamicUserPage() {
               />
             ) : (
               <>
-                <Text style={styles.toPayAmount}>
+                <Text style={styles.toReceiveAmount}>
                   रु.{" "}
                   {Math.abs(parseFloat(userDetails.totalToPay || 0)).toFixed(2)}
                 </Text>
-                <Text style={styles.toReceiveAmount}>
+                <Text style={styles.toPayAmount}>
                   रु.{" "}
                   {Math.abs(
                     parseFloat(userDetails.totalToReceive || 0)
@@ -128,16 +151,20 @@ export default function DynamicUserPage() {
           style={styles.scrollView}
         >
           <Section
-            title="To Pay"
+            title={`${user} owes you`}
             transactions={userDetails.toPayTo || {}}
-            color="red"
-            handleDelete={handleDelete}
-          />
-          <Section
-            title="To Receive"
-            transactions={userDetails.toReceiveFrom || {}}
             color="green"
             handleDelete={handleDelete}
+            user={Array.isArray(user) ? user[0] : user}
+            userName={userName}
+          />
+          <Section
+            title={`You owe ${user}`}
+            transactions={userDetails.toReceiveFrom || {}}
+            color="red"
+            handleDelete={handleDelete}
+            user={Array.isArray(user) ? user[0] : user}
+            userName={userName}
           />
         </ScrollView>
       )}
@@ -150,11 +177,15 @@ const Section = ({
   transactions = {},
   color,
   handleDelete,
+  user,
+  userName,
 }: {
   title: string;
   transactions: { [key: string]: number };
   color: string;
   handleDelete: any;
+  user: string;
+  userName: string;
 }) => {
   const filteredTransactions = Object.entries(transactions).filter(
     ([_, amount]) => amount > 0
@@ -168,8 +199,6 @@ const Section = ({
         filteredTransactions.map(([name, amount], index) => (
           <View key={index} style={styles.transactionContainer}>
             <View>
-              <Text style={styles.transactionName}>{name}</Text>
-
               <Text
                 style={{
                   ...styles.transactionAmount,
@@ -179,7 +208,7 @@ const Section = ({
                 रु. {Math.abs(parseFloat(amount.toString())).toFixed(2)}
               </Text>
             </View>
-            {title === "To Receive" && (
+            {title.includes("owes you") && user === userName && (
               <Pressable
                 style={styles.deleteButton}
                 onPress={() => handleDelete(name, amount)}
@@ -191,7 +220,6 @@ const Section = ({
             )}
           </View>
         ))
-        
       ) : (
         <Text style={styles.noTransactionsText}>No transactions found.</Text>
       )}

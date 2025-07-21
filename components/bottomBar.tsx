@@ -2,16 +2,12 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
 
 interface BottomBarProps {
-  modalVisible: boolean;
   setModalVisible: (visible: boolean) => void;
 }
 
-export default function BottomBar({
-  modalVisible,
-  setModalVisible,
-}: BottomBarProps) {
+export default function BottomBar({ setModalVisible }: BottomBarProps) {
   const handleModalChange = () => {
-    setModalVisible(!modalVisible);
+    setModalVisible(true);
   };
   return (
     <View style={styles.bottomBar}>
@@ -36,14 +32,16 @@ const styles = StyleSheet.create({
     borderTopEndRadius: 50,
   },
   pressable: {
+    position: "absolute", // Fix: Use absolute positioning
+    bottom: 10, // Adjust to sit correctly above the bottom bar
     height: 90,
     width: 90,
     borderRadius: 45,
     backgroundColor: "#547bd4",
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 50,
     borderWidth: 10,
+    zIndex: 100,
     borderColor: "#f6f6e9",
   },
   add: {

@@ -10,7 +10,18 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    npm install
    ```
 
-2. Start the app
+2. Set up environment variables
+
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env
+   
+   # Edit .env file with your actual values
+   # - Add your Firebase configuration
+   # - Add your Discord webhook URL
+   ```
+
+3. Start the app
 
    ```bash
     npx expo start
@@ -34,6 +45,45 @@ npm run reset-project
 ```
 
 This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+
+## Environment Variables
+
+This project uses environment variables to keep sensitive information secure. You need to set up the following variables:
+
+### Required Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```bash
+# Firebase Configuration
+EXPO_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+EXPO_PUBLIC_FIREBASE_DATABASE_URL=https://your_project-default-rtdb.firebaseio.com
+EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
+EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
+EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
+
+# Discord Webhook URL (for notifications)
+EXPO_PUBLIC_DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/your_webhook_url
+```
+
+### Getting Firebase Configuration
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Select your project or create a new one
+3. Go to Project Settings > General
+4. Scroll down to "Your apps" and select your app
+5. Copy the configuration values
+
+### Getting Discord Webhook URL
+
+1. Go to your Discord server
+2. Right-click on the channel where you want notifications
+3. Select "Edit Channel" > "Integrations" > "Webhooks"
+4. Create a new webhook and copy the URL
+
+**Important**: Never commit your `.env` file to version control. It's already added to `.gitignore`.
 
 ## Learn more
 

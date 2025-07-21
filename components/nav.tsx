@@ -9,17 +9,25 @@ import {
 import React, { useState } from "react";
 import Form from "./form";
 import BottomBar from "./bottomBar";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Nav() {
+  const { toggleSidebarVisibility } = useAuth();
   const [modalVisible, setModalVisible] = useState(false);
   const handleModal = () => {
-    setModalVisible(!modalVisible);
+    setModalVisible(false);
+  };
+  const handleMenuPress = () => {
+    toggleSidebarVisibility();
   };
   return (
     <>
       <View style={styles.nav}>
         <StatusBar backgroundColor="#547bd4" barStyle="default" />
         <Text style={[styles.text, styles.textCenter]}>Splito</Text>
+        <Pressable onPress={handleMenuPress}>
+          <Text style={styles.menu}>☰</Text>
+        </Pressable>
         <Modal
           visible={modalVisible}
           animationType="slide" //or fade
@@ -54,10 +62,7 @@ export default function Nav() {
           Split bills like nobody
         </Text>
       </View>
-      <BottomBar
-        modalVisible={modalVisible}
-        setModalVisible={setModalVisible}
-      />
+      <BottomBar setModalVisible={setModalVisible} />
     </>
   );
 }
@@ -68,6 +73,16 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     paddingLeft: 10,
     color: "white",
+    width: "100%",
+  },
+  menu: {
+    position: "absolute",
+    right: 20,
+    top: -30,
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 30,
+    padding: 10,
   },
   textCenter: {
     textAlign: "center",

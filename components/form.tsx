@@ -10,7 +10,8 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
-import { getUsers, postUserData } from "../app/api/route";
+import { getUsers, postUserData } from "../utils/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ModalProps {
   setModalVisible: (visible: boolean) => void;
@@ -41,8 +42,21 @@ export default function Form({ setModalVisible }: ModalProps) {
       );
       return;
     }
+    if ((await AsyncStorage.getItem("userName"))?.trim() !== whoPaid) {
+      alert("Only the logged in user can pay!");
+      setAmount(undefined);
+      setWhoPaid(undefined);
+      setSelected([]);
+      setModalVisible(false);
+      return;
+    }
     setLoading(true);
-    await postUserData(whoPaid, amount, selected);
+    const status = await postUserData(whoPaid, amount, selected);
+    if (!status) {
+      alert("Error saving data. Please try again later.");
+      setLoading(false);
+      return;
+    }
     setLoading(false);
     setModalVisible(false);
   };

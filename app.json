@@ -2,9 +2,13 @@
   "expo": {
     "name": "Splito",
     "slug": "Splito",
+    "owner": "ankitkhanal",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo.png",
+    "splash": {
+      "backgroundColor": "#f6f6e9"
+    },
+    "icon": "./assets/images/logoSmall.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,29 +17,30 @@
       "bundleIdentifier": "com.splito.app"
     },
     "android": {
-      "googleServicesFile":"./google-services.json",
       "package": "com.splito.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/logo.png",
+        "foregroundImage": "./assets/images/logoSmall.png",
         "backgroundColor": "#f6f6e9"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo.png"
+      "favicon": "./assets/images/logoSmall.png"
     },
     "plugins": [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/logo.png",
-          "imageWidth": 400,
+          "image": "./assets/images/logoSmall.png",
+          "imageWidth": 250,
+          "imageHeight": 250,
           "resizeMode": "contain",
           "backgroundColor": "#f6f6e9"
         }
-      ]
+      ],
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true
