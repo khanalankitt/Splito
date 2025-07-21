@@ -191,6 +191,7 @@ const Section = ({
             )}
           </View>
         ))
+        
       ) : (
         <Text style={styles.noTransactionsText}>No transactions found.</Text>
       )}

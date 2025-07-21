@@ -13,6 +13,7 @@
       "bundleIdentifier": "com.splito.app"
     },
     "android": {
+      "googleServicesFile":"./google-services.json",
       "package": "com.splito.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
