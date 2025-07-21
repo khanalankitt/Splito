@@ -10,20 +10,25 @@ import React, { useState } from "react";
 import Form from "./form";
 import BottomBar from "./bottomBar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function Nav() {
   const { toggleSidebarVisibility } = useAuth();
+  const { colors } = useTheme();
   const [modalVisible, setModalVisible] = useState(false);
+
   const handleModal = () => {
     setModalVisible(false);
   };
+
   const handleMenuPress = () => {
     toggleSidebarVisibility();
   };
+
   return (
     <>
-      <View style={styles.nav}>
-        <StatusBar backgroundColor="#547bd4" barStyle="default" />
+      <View style={[styles.nav, { backgroundColor: colors.primary }]}>
+        <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
         <Text style={[styles.text, styles.textCenter]}>Splito</Text>
         <Pressable onPress={handleMenuPress}>
           <Text style={styles.menu}>☰</Text>
@@ -33,7 +38,7 @@ export default function Nav() {
           animationType="slide" //or fade
           onRequestClose={() => setModalVisible(false)}
         >
-          <View style={styles.pressableContainer}>
+          <View style={[styles.pressableContainer, { backgroundColor: colors.primary }]}>
             <Pressable onPress={handleModal}>
               <Text
                 style={[
@@ -50,13 +55,14 @@ export default function Nav() {
           <Form setModalVisible={setModalVisible} />
         </Modal>
       </View>
-      <View style={styles.bottomBarContainer}>
+      <View style={[styles.bottomBarContainer, { backgroundColor: colors.primary }]}>
         <Text
           style={[
             styles.textLg,
             styles.fontSemibold,
             styles.textWhite,
             styles.negativeMarginTop,
+            { backgroundColor: colors.primary }
           ]}
         >
           Split bills like nobody
@@ -118,7 +124,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   nav: {
-    backgroundColor: "#547bd4",
     height: 60,
     flexDirection: "row",
     justifyContent: "center",
@@ -127,24 +132,21 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 15,
-    color: "#547bd4",
     fontWeight: "bold",
     textAlign: "center",
   },
   pressableContainer: {
     height: 60,
-    backgroundColor: "#547bd4",
     alignItems: "flex-start",
     justifyContent: "center",
     paddingHorizontal: 5,
   },
   bottomBarContainer: {
-    height: 64,
+    height: 54,
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#547bd4",
     borderBottomLeftRadius: 50,
     borderBottomRightRadius: 50,
   },

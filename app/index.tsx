@@ -4,11 +4,13 @@ import Nav from "@/components/nav";
 import List from "@/components/list";
 import Sidebar from "@/components/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useEffect } from "react";
 import { router } from "expo-router";
 
 export default function HomeScreen() {
   const { isLoggedIn, userName, isLoading } = useAuth();
+  const { colors } = useTheme();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -32,8 +34,8 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#547bd4" />
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <StatusBar backgroundColor={colors.primary} />
       <Nav />
       <Sidebar />
       <List />
@@ -44,6 +46,5 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f6f6e9",
   },
 });

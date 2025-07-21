@@ -1,17 +1,25 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import React from "react";
+import { useTheme } from "../contexts/ThemeContext";
 
 interface BottomBarProps {
   setModalVisible: (visible: boolean) => void;
 }
 
 export default function BottomBar({ setModalVisible }: BottomBarProps) {
+  const { colors } = useTheme();
   const handleModalChange = () => {
     setModalVisible(true);
   };
   return (
-    <View style={styles.bottomBar}>
-      <Pressable style={styles.pressable} onPress={handleModalChange}>
+    <View style={[styles.bottomBar, { backgroundColor: colors.primary }]}>
+      <Pressable 
+        style={[styles.pressable, { 
+          backgroundColor: colors.primary,
+          borderColor: colors.background 
+        }]} 
+        onPress={handleModalChange}
+      >
         <Text style={styles.add}>+</Text>
       </Pressable>
     </View>
@@ -27,7 +35,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     flexDirection: "row",
-    backgroundColor: "#547bd4",
     borderTopStartRadius: 50,
     borderTopEndRadius: 50,
   },
@@ -37,12 +44,10 @@ const styles = StyleSheet.create({
     height: 90,
     width: 90,
     borderRadius: 45,
-    backgroundColor: "#547bd4",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 10,
     zIndex: 100,
-    borderColor: "#f6f6e9",
   },
   add: {
     color: "#fff",

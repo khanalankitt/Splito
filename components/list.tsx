@@ -9,8 +9,10 @@ import {
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { Link } from "expo-router";
-import { getAllTransactions } from "../utils/api";
+import { getAllTransactionsWithNetSettlement } from "../utils/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 interface User {
   name: string;
@@ -21,19 +23,31 @@ export default function List() {
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const { userName } = useAuth();
+  const { colors } = useTheme();
 
   const SeperatorComponent = () => <View style={{ height: 10 }} />;
   const ListEmptyComponent = () => (
-    <Text style={{ marginTop: 100, textAlign: "center" }}>
-      No users with transactions found
-    </Text>
+    <View style={styles.emptyStateContainer}>
+      <MaterialIcons
+        name="people-outline"
+        size={80}
+        color={colors.textSecondary}
+        style={styles.emptyIcon}
+      />
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+        No Active Transactions
+      </Text>
+      <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+        When you split bills with friends, they'll appear here
+      </Text>
+    </View>
   );
 
   const fetchUsersWithTransactions = async () => {
     setLoading(true);
     try {
-      const transactionData = await getAllTransactions();
-      
+      const transactionData = await getAllTransactionsWithNetSettlement();
+
       if (!transactionData || !userName) {
         setUsers([]);
         setLoading(false);
@@ -110,7 +124,7 @@ export default function List() {
         <ActivityIndicator
           size="large"
           style={{ marginTop: 100 }}
-          color="#547bd4"
+          color={colors.primary}
         />
       ) : (
         <FlatList
@@ -146,15 +160,18 @@ interface dataTypes {
 }
 
 const MoneyItem = ({ name }: dataTypes) => {
+  const { colors } = useTheme();
+
   return (
-    <View style={styles.details}>
-      <Text style={{ fontSize: 18, fontWeight: "bold" }}>{name}</Text>
+    <View style={[styles.details, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+      <Text style={[styles.nameText, { color: colors.text }]}>{name}</Text>
       <Text
         style={[
           styles.opacity50,
           styles.textUnderline,
           styles.fontSemibold,
           styles.textMd,
+          { color: colors.textSecondary }
         ]}
       >
         More Details→
@@ -217,5 +234,30 @@ const styles = StyleSheet.create({
   },
   textMd: {
     fontSize: 14,
+  },
+  nameText: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  emptyStateContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 60,
+    paddingHorizontal: 20,
+  },
+  emptyIcon: {
+    marginBottom: 20,
+    opacity: 0.7,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 8,
+    textAlign: "center",
+  },
+  emptyText: {
+    fontSize: 16,
+    textAlign: "center",
+    lineHeight: 22,
   },
 });

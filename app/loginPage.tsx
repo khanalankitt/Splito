@@ -4,19 +4,21 @@ import { Link } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Register from "@/components/register";
 import Login from "@/components/login";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function LoginPage() {
   const [activeLink, setActiveLink] = useState("login");
+  const { colors } = useTheme();
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <Text
         style={{
           width: "100%",
           textAlign: "center",
           fontWeight: "bold",
           fontSize: 50,
-          color: "#547bd4",
+          color: colors.primary,
         }}
       >
         Splito
@@ -27,7 +29,7 @@ export default function LoginPage() {
             style={{
               width: 192,
               height: 50,
-              backgroundColor: "#547bd4",
+              backgroundColor: colors.primary,
               padding: 3,
               borderRadius: 10,
               gap: 8,
@@ -43,11 +45,11 @@ export default function LoginPage() {
                   fontWeight: "bold",
                   fontSize: 18,
                   backgroundColor:
-                    activeLink === "register" ? "#547bd4" : "white",
+                    activeLink === "register" ? colors.primary : colors.surface,
                   padding: 7,
                   paddingHorizontal: 12,
                   borderRadius: 6,
-                  color: activeLink === "register" ? "white" : "#547bd4",
+                  color: activeLink === "register" ? "white" : colors.primary,
                 }}
               >
                 Login
@@ -58,11 +60,11 @@ export default function LoginPage() {
                 style={{
                   fontWeight: "bold",
                   fontSize: 18,
-                  backgroundColor: activeLink === "login" ? "#547bd4" : "white",
+                  backgroundColor: activeLink === "login" ? colors.primary : colors.surface,
                   padding: 7,
                   paddingHorizontal: 12,
                   borderRadius: 6,
-                  color: activeLink === "login" ? "white" : "#547bd4",
+                  color: activeLink === "login" ? "white" : colors.primary,
                 }}
               >
                 Register
@@ -72,13 +74,13 @@ export default function LoginPage() {
           {activeLink === "register" ? <Register /> : <Login />}
         </View>
       </View>
-      <Text style={{ position: "absolute", bottom: 20 }}>
+      <Text style={{ position: "absolute", bottom: 20, color: colors.text }}>
         Created by{" "}
         <Link
           href="https://www.ankitkhanal.me"
           style={{
             textDecorationLine: "underline",
-            color: "#547bd4",
+            color: colors.primary,
             fontWeight: "bold",
           }}
         >
@@ -104,7 +106,6 @@ export default function LoginPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f6f6e9",
     paddingTop: 30,
     justifyContent: "flex-start",
     alignItems: "center",
@@ -112,7 +113,6 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: "90%",
-    backgroundColor: "#f6f6e9",
     padding: 10,
     borderRadius: 10,
     display: "flex",

@@ -11,6 +11,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { Dropdown, MultiSelect } from "react-native-element-dropdown";
 import { getUsers, postUserData } from "../utils/api";
+import { useTheme } from "../contexts/ThemeContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface ModalProps {
@@ -23,6 +24,7 @@ export default function Form({ setModalVisible }: ModalProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [users, setUsers] = useState<{ name: any }[]>([]);
   const [loading, setLoading] = useState(false);
+  const { colors } = useTheme();
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -72,41 +74,73 @@ export default function Form({ setModalVisible }: ModalProps) {
             setSelected([...selected, item.name]);
           }
         }}
+        style={{ backgroundColor: colors.surface }}
       >
-        <View style={[styles.item, isSelected && styles.selectedItem]}>
-          <Text style={styles.selectedTextStyle}>{item.name}</Text>
+        <View style={[
+          styles.item, 
+          { 
+            backgroundColor: isSelected ? colors.primary + '20' : colors.surface,
+            borderBottomColor: colors.border,
+            borderBottomWidth: 0.5
+          }
+        ]}>
+          <Text style={[styles.selectedTextStyle, { color: colors.text }]}>{item.name}</Text>
+          {isSelected && (
+            <Text style={{ color: colors.primary, fontWeight: 'bold', fontSize: 16 }}>✓</Text>
+          )}
         </View>
       </TouchableOpacity>
     );
   };
 
   return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={[styles.formTitle, styles.textPrimaryColor]}>
+    <ScrollView style={{ backgroundColor: colors.background }}>
+      <View style={[styles.form, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.formTitle, { color: colors.primary }]}>
           Add Payment Details
         </Text>
-        <Text style={styles.fontBoldTextXL}>Who paid?</Text>
+        <Text style={[styles.fontBoldTextXL, { color: colors.text }]}>Who paid?</Text>
         <Dropdown
-          style={styles.dropdownn}
+          style={[styles.dropdownn, { 
+            borderColor: colors.border,
+            backgroundColor: colors.surface 
+          }]}
           data={users}
           onChange={(item) => setWhoPaid(item.name)}
           placeholder="Select Person"
           labelField="name"
           valueField="name"
           value={whoPaid}
+          placeholderStyle={{ color: colors.textSecondary }}
+          selectedTextStyle={{ color: colors.text }}
+          containerStyle={{ 
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+            borderWidth: 1,
+            borderRadius: 8
+          }}
+          itemTextStyle={{ color: colors.text }}
+          activeColor={colors.accent + '20'}
         />
-        <Text style={styles.whopaid}>Amount</Text>
+        <Text style={[styles.whopaid, { color: colors.text }]}>Amount</Text>
         <TextInput
-          style={styles.amountInput}
+          style={[styles.amountInput, { 
+            borderColor: colors.border,
+            backgroundColor: colors.surface,
+            color: colors.text 
+          }]}
           keyboardType="numeric"
           value={amount?.toString()}
           placeholder="Rs."
+          placeholderTextColor={colors.textSecondary}
           onChangeText={(am) => setAmount(am ? parseFloat(am) : undefined)}
         />
-        <Text style={styles.whopaid}>Divide amongst?</Text>
+        <Text style={[styles.whopaid, { color: colors.text }]}>Divide amongst?</Text>
         <MultiSelect
-          style={styles.dropdown}
+          style={[styles.dropdown, { 
+            borderColor: colors.border,
+            backgroundColor: colors.surface 
+          }]}
           data={users}
           labelField="name"
           valueField="name"
@@ -114,13 +148,26 @@ export default function Form({ setModalVisible }: ModalProps) {
           value={selected}
           onChange={(data) => setSelected(data)}
           renderItem={renderItem}
+          placeholderStyle={{ color: colors.textSecondary }}
+          selectedTextStyle={{ color: colors.text }}
+          containerStyle={{ 
+            backgroundColor: colors.surface,
+            borderColor: colors.border,
+            borderWidth: 1,
+            borderRadius: 8
+          }}
+          itemTextStyle={{ color: colors.text }}
+          activeColor={colors.accent + '20'}
           renderSelectedItem={(item, unSelect) => (
             <TouchableOpacity
               activeOpacity={0.7}
               onPress={() => unSelect && unSelect(item)}
             >
-              <View style={styles.selectedStyle}>
-                <Text style={styles.textSelectedStyle}>
+              <View style={[styles.selectedStyle, { 
+                borderColor: colors.border,
+                backgroundColor: colors.surface 
+              }]}>
+                <Text style={[styles.textSelectedStyle, { color: colors.text }]}>
                   {item.name.split(" ")[0]}
                 </Text>
               </View>
@@ -129,11 +176,11 @@ export default function Form({ setModalVisible }: ModalProps) {
         />
         <Pressable onPress={handleSubmit}>
           {loading ? (
-            <View style={styles.loadingButton}>
+            <View style={[styles.loadingButton, { backgroundColor: colors.primary }]}>
               <ActivityIndicator size="large" color="white" />
             </View>
           ) : (
-            <Text style={styles.saveButton}>Save Payment</Text>
+            <Text style={[styles.saveButton, { backgroundColor: colors.primary }]}>Save Payment</Text>
           )}
         </Pressable>
       </View>
@@ -163,9 +210,6 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 10,
   },
-  textPrimaryColor: {
-    color: "#547bd4",
-  },
   fontBoldTextXL: {
     fontWeight: "bold",
     fontSize: 20,
@@ -177,7 +221,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 10,
     borderWidth: 2,
-    borderColor: "lightgray",
   },
   whopaid: {
     fontWeight: "bold",
@@ -187,7 +230,6 @@ const styles = StyleSheet.create({
   amountInput: {
     height: 50,
     borderWidth: 2,
-    borderColor: "lightgray",
     width: 300,
     borderRadius: 10,
     paddingHorizontal: 10,
@@ -199,7 +241,6 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     borderWidth: 2,
-    borderColor: "lightgray",
   },
   placeholderStyle: {
     fontSize: 14,
@@ -208,14 +249,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   item: {
-    padding: 13,
+    padding: 15,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  selectedItem: {
-    backgroundColor: "#cde6ff", // Light blue background for selected items
-    paddingHorizontal: 10,
+    minHeight: 50,
   },
   selectedStyle: {
     flexDirection: "row",
@@ -224,7 +262,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 14,
     borderWidth: 2,
-    borderColor: "lightgray",
     marginTop: 5,
     marginHorizontal: "auto",
     paddingHorizontal: 12,
@@ -237,7 +274,6 @@ const styles = StyleSheet.create({
   loadingButton: {
     fontWeight: "bold",
     fontSize: 24,
-    backgroundColor: "#547bd4",
     paddingHorizontal: 48,
     borderRadius: 10,
     paddingVertical: 8,
@@ -247,7 +283,6 @@ const styles = StyleSheet.create({
   saveButton: {
     fontWeight: "bold",
     fontSize: 20,
-    backgroundColor: "#547bd4",
     paddingHorizontal: 40,
     borderRadius: 10,
     paddingVertical: 8,

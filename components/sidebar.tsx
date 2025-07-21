@@ -13,15 +13,22 @@ import {
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/contexts/AuthContext";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useTheme } from "@/contexts/ThemeContext";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export default function Sidebar() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const { userName, userLogout, sidebarOpen, toggleSidebarVisibility } = useAuth();
+  const { colors } = useTheme();
   const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
   const router = useRouter();
+
+  // Check if the logged-in user is allowed to use the food messaging feature
+  const isAllowedToMessage = userName && ['Ankit', 'Sujan', 'Hridaya'].some(allowedName =>
+    userName.startsWith(allowedName)
+  );
 
   const slideAnim = useRef(new Animated.Value(-250)).current; // Initially hidden
   const overlayOpacity = useRef(new Animated.Value(0)).current; // Overlay opacity
@@ -70,6 +77,11 @@ export default function Sidebar() {
     userLogout();
   };
 
+  const handleProfileNavigation = () => {
+    router.push("/profile");
+    closeSidebar();
+  };
+
   const callForFood = async () => {
     if (!message) {
       alert("Please enter a message");
@@ -78,13 +90,13 @@ export default function Sidebar() {
     try {
       setLoading(true);
       const url = process.env.EXPO_PUBLIC_DISCORD_WEBHOOK_URL;
-      
+
       if (!url) {
         alert("Discord webhook URL not configured");
         setLoading(false);
         return;
       }
-      
+
       await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,30 +136,47 @@ export default function Sidebar() {
           {
             height: screenHeight,
             transform: [{ translateX: slideAnim }],
+            backgroundColor: colors.surface,
           },
         ]}
       >
         <View style={styles.wrapper}>
           <View style={styles.buttonContainer}>
-            <Text style={styles.greet}>{`Hi ${userName}`}</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter text message"
-              placeholderTextColor="#888"
-              onChangeText={setMessage}
-              value={message}
-            />
-            <Pressable onPress={callForFood} style={styles.khana}>
-              {loading ? (
-                <ActivityIndicator size="small" color="black" />
-              ) : (
-                <Text style={{ fontSize: 17, fontWeight: "bold" }}>
-                  Khana🍕
-                </Text>
-              )}
+            <Text style={[styles.greet, { color: colors.text }]}>{`Hi ${userName}`}</Text>
+
+            {/* Profile Button */}
+            <Pressable onPress={handleProfileNavigation} style={[styles.profileButton, { backgroundColor: colors.primary }]}>
+              <MaterialIcons name="person" size={20} color="white" />
+              <Text style={styles.profileButtonText}>Profile</Text>
             </Pressable>
+
+            {/* Food messaging feature - Only for specific users */}
+            {isAllowedToMessage && (
+              <>
+                <TextInput
+                  style={[styles.input, {
+                    borderColor: colors.border,
+                    color: colors.text,
+                    backgroundColor: colors.background
+                  }]}
+                  placeholder="Enter text message"
+                  placeholderTextColor={colors.textSecondary}
+                  onChangeText={setMessage}
+                  value={message}
+                />
+                <Pressable onPress={callForFood} style={[styles.khana, { backgroundColor: colors.accent }]}>
+                  {loading ? (
+                    <ActivityIndicator size="small" color="white" />
+                  ) : (
+                    <Text style={{ fontSize: 17, fontWeight: "bold", color: "white" }}>
+                      Khana🍕
+                    </Text>
+                  )}
+                </Pressable>
+              </>
+            )}
           </View>
-          <Pressable onPress={handleLogout} style={styles.logout}>
+          <Pressable onPress={handleLogout} style={[styles.logout, { backgroundColor: colors.error }]}>
             <Text style={styles.logoutText}>Logout</Text>
           </Pressable>
         </View>
@@ -191,6 +220,20 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "bold",
     marginBottom: 10,
+  },
+  profileButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    gap: 8,
+  },
+  profileButtonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "bold",
   },
   buttonContainer: {
     width: "100%",

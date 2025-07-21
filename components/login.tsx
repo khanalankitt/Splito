@@ -10,9 +10,11 @@ import React, { useState } from "react";
 import { login } from "@/utils/api";
 import { useRouter } from "expo-router";
 import { useAuth } from "../contexts/AuthContext";
+import { useTheme } from "../contexts/ThemeContext";
 
 export default function Login() {
   const { userLogin } = useAuth(); // Get the login function from context
+  const { colors } = useTheme();
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -55,38 +57,44 @@ export default function Login() {
 
   return (
     <>
-      <Text style={{ alignSelf: "flex-start", marginBottom: 5 }}>Username</Text>
+      <Text style={{ alignSelf: "flex-start", marginBottom: 5, color: colors.text }}>Username</Text>
       <TextInput
         style={{
           width: "100%",
           padding: 10,
           borderWidth: 1,
-          borderColor: "#ccc",
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
+          color: colors.text,
           borderRadius: 5,
           marginBottom: 15,
         }}
         placeholder="Enter your username"
+        placeholderTextColor={colors.textSecondary}
         value={username}
         onChangeText={setUsername}
       />
-      <Text style={{ alignSelf: "flex-start", marginBottom: 5 }}>Password</Text>
+      <Text style={{ alignSelf: "flex-start", marginBottom: 5, color: colors.text }}>Password</Text>
       <TextInput
         style={{
           width: "100%",
           padding: 10,
           borderWidth: 1,
-          borderColor: "#ccc",
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
+          color: colors.text,
           borderRadius: 5,
           marginBottom: 15,
         }}
         placeholder="Enter your password"
+        placeholderTextColor={colors.textSecondary}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
       />
       <Pressable
         style={{
-          backgroundColor: "#547bd4",
+          backgroundColor: colors.primary,
           padding: 10,
           borderRadius: 5,
           alignItems: "center",
